@@ -1,5 +1,6 @@
 package com.dung.democrm.entity;
 
+import com.dung.democrm.common.enums.LeadSource;
 import com.dung.democrm.common.enums.LeadStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -15,10 +16,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Lead {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Lead extends BaseEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
@@ -31,11 +29,11 @@ public class Lead {
     @Enumerated(EnumType.STRING)
     private LeadStatus leadStatus;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private LeadSource source;
+
     private LocalDate assignedAt;
 
     private LocalDate expiredAt;
-
-    @CreationTimestamp
-    private LocalDateTime createdAt;
-
 }

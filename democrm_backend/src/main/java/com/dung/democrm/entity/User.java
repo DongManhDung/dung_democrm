@@ -17,10 +17,7 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class User extends BaseEntity{
 
     @Column(nullable = false)
     private String fullName;
@@ -34,8 +31,5 @@ public class User {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
-
-    @CreationTimestamp
-    private LocalDateTime createdAt;
 
 }
