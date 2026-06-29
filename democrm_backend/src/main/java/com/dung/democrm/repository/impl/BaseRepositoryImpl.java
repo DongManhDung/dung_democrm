@@ -1,7 +1,7 @@
 package com.dung.democrm.repository.impl;
 
 import com.dung.democrm.entity.BaseEntity;
-import com.dung.democrm.entity.BaseRepository;
+import com.dung.democrm.repository.BaseRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;

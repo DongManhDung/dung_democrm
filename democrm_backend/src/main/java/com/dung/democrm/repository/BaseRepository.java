@@ -1,5 +1,6 @@
-package com.dung.democrm.entity;
+package com.dung.democrm.repository;
 
+import com.dung.democrm.entity.BaseEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 

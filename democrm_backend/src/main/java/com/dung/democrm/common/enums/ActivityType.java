@@ -6,5 +6,6 @@ public enum ActivityType {
     MEETING,
     DEMO,
     FOLLOW_UP,
+    QUOTATION,
     OTHER
 }

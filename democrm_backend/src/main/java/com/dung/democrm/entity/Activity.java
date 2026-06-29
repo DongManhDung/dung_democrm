@@ -25,6 +25,8 @@ public class Activity extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private ActivityType type;
 
+    private String note;
+
     private LocalDateTime activityDate;
 
 }
