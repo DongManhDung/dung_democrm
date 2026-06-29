@@ -57,6 +57,8 @@ public class ActivitySeeder {
             case NEGOTIATION -> List.of(ActivityType.DEMO, ActivityType.FOLLOW_UP, ActivityType.MEETING);
             case WON -> List.of(ActivityType.CALL, ActivityType.DEMO, ActivityType.FOLLOW_UP);
             case LOST -> List.of(ActivityType.CALL, ActivityType.FOLLOW_UP);
+            case REASSIGNED -> List.of(ActivityType.CALL, ActivityType.EMAIL, ActivityType.FOLLOW_UP);
+            case ARCHIVED -> List.of(ActivityType.CALL, ActivityType.QUOTATION);
         };
     }
 

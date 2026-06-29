@@ -34,16 +34,26 @@ public class LeadSeeder {
 
         List<Lead> leads = new ArrayList<>();
 
-        LocalDate assignedDate = LocalDate.now().minusDays(random.nextInt(60));
 
         for(int i = 0; i < 700; i++){
             Lead lead = new Lead();
+
             lead.setCustomer(customers.get(i));
-            lead.setOwner(sales.get(random.nextInt(sales.size())));
+
+            User owner = sales.get(random.nextInt(sales.size()));
+            lead.setOwner(owner);
+            lead.setTeamOwner(owner.getManager());
+
             lead.setLeadStatus(randomStatus());
             lead.setSource(randomSource());
+
+            LocalDate assignedDate = LocalDate.now().minusDays(random.nextInt(60));
             lead.setAssignedAt(assignedDate);
             lead.setExpiredAt(assignedDate.plusDays(15));
+
+            if(lead.getLeadStatus() == LeadStatus.LOST){
+                lead.setLostReason(randomLostReason());
+            }
 
             leads.add(lead);
         }
@@ -113,5 +123,20 @@ public class LeadSeeder {
         }
 
         return LeadSource.WALK_IN;
+    }
+
+    private String randomLostReason(){
+        String[] reason = {
+                "Không nhấc máy.",
+                "Không có nhu cầu.",
+                "Gọi thuê bao.",
+                "Đã mua của bên khác.",
+                "Sai số điện thoại.",
+                "Không phản hồi.",
+                "Khách có lắng nghe, chưa sử dụng, xin được thông tin tương tác.",
+                "Chăm sóc thêm."
+        };
+
+        return reason[random.nextInt(reason.length)];
     }
 }
