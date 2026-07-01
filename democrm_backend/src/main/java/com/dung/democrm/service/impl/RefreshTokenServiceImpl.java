@@ -1,5 +1,7 @@
 package com.dung.democrm.service.impl;
 
+import com.dung.democrm.common.exception.TokenExpiredException;
+import com.dung.democrm.common.exception.UnauthorizedException;
 import com.dung.democrm.entity.RefreshToken;
 import com.dung.democrm.entity.User;
 import com.dung.democrm.repository.RefreshTokenRepository;
@@ -37,10 +39,10 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     public RefreshToken verify(String token) {
         RefreshToken refreshToken = refreshTokenRepository.findByTokenAndRevokedFalse(token)
-                .orElseThrow(() -> new RuntimeException("Refresh token is invalid."));
+                .orElseThrow(() -> new UnauthorizedException("Refresh token is invalid."));
 
         if(refreshToken.getExpiredAt().isBefore(LocalDateTime.now())){
-            throw new RuntimeException("Refresh token is expired.");
+            throw new TokenExpiredException("Refresh token is expired.");
         }
 
         return refreshToken;
