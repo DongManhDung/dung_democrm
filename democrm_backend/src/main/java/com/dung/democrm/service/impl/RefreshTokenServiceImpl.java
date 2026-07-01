@@ -27,7 +27,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         refreshToken.setToken(UUID.randomUUID().toString());
         refreshToken.setUser(user);
 
-        long refreshExpired = Long.parseLong(dotenv.get("JWT_REFRESH_EXPIRED_DAYS"));
+        long refreshExpired = Long.parseLong(dotenv.get("JWT_REFRESH_EXPIRED"));
         refreshToken.setExpiredAt(LocalDateTime.now().plus(Duration.ofMillis(refreshExpired)));
 
         refreshToken.setLastUsedAt(LocalDateTime.now());

@@ -34,7 +34,7 @@ public class JwtService {
     private String generateToken(Map<String, Object> extraClaims, String subject, long expiration){
         Date now = new Date();
         return Jwts.builder().claims(extraClaims).subject(subject).issuedAt(now).
-                expiration(new Date(now.getTime() + expiration)).compact();
+                expiration(new Date(now.getTime() + expiration)).signWith(getSigningKey()).compact();
     }
 
     // Lấy email trong JWT
