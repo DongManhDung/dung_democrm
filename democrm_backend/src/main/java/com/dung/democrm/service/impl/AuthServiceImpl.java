@@ -1,6 +1,7 @@
 package com.dung.democrm.service.impl;
 
 import com.dung.democrm.entity.RefreshToken;
+import com.dung.democrm.mapper.UserMapper;
 import com.dung.democrm.service.JwtService;
 import com.dung.democrm.common.exception.ResourceNotFoundException;
 import com.dung.democrm.dto.request.LoginRequest;
@@ -86,20 +87,6 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + authentication.getName()));
 
-        return CurrentUserResponse.builder()
-                .id(user.getId())
-                .employeeCode(user.getEmployeeCode())
-                .fullName(user.getFullName())
-                .email(user.getEmail())
-                .phone(user.getPhone())
-                .role(user.getRole())
-                .status(user.getStatus())
-                .managerId(
-                        user.getManager() != null ? user.getManager().getId() : null
-                )
-                .managerName(
-                        user.getManager() != null ? user.getManager().getFullName() : null
-                )
-                .build();
+        return UserMapper.toCurrentUserResponse(user);
     }
 }
