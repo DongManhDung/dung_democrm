@@ -34,4 +34,6 @@ public interface UserRepository extends BaseRepository<User, Long>, JpaSpecifica
     boolean existsByPhone(String phone);
 
     Page<User> findByFullNameContainingIgnoreCaseAndActiveTrue(String keyword, Pageable pageable);
+
+    List<User> findByManagerIdAndActiveTrue(Long managerId);
 }

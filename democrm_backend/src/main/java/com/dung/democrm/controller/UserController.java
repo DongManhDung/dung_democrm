@@ -1,6 +1,7 @@
 package com.dung.democrm.controller;
 
 import com.dung.democrm.dto.request.*;
+import com.dung.democrm.dto.response.TeamMemberResponse;
 import com.dung.democrm.dto.response.UserDetailResponse;
 import com.dung.democrm.dto.response.UserResponse;
 import com.dung.democrm.service.RefreshTokenService;
@@ -14,6 +15,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -74,5 +77,10 @@ public class UserController {
             ){
         userService.changeStatus(id, request, authentication);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/my-team")
+    public List<TeamMemberResponse> getMyTeam(Authentication authentication){
+        return userService.getMyTeam(authentication);
     }
 }

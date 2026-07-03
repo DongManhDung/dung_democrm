@@ -6,6 +6,7 @@ import com.dung.democrm.common.exception.BadRequestException;
 import com.dung.democrm.common.exception.DuplicateResourceException;
 import com.dung.democrm.common.exception.ResourceNotFoundException;
 import com.dung.democrm.dto.request.*;
+import com.dung.democrm.dto.response.TeamMemberResponse;
 import com.dung.democrm.dto.response.UserDetailResponse;
 import com.dung.democrm.dto.response.UserResponse;
 import com.dung.democrm.entity.User;
@@ -21,6 +22,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -221,5 +224,20 @@ public class UserServiceImpl implements UserService {
             refreshTokenService.revokeAll(user);
         }
 
+    }
+
+    @Override
+    public List<TeamMemberResponse> getMyTeam(Authentication authentication) {
+        User manager = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+
+        if(manager.getRole() != Role.MANAGER){
+            throw new BadRequestException("Only manager can view their team.");
+        }
+
+        return userRepository.findByManagerIdAndActiveTrue(manager.getId())
+                .stream().
+                map(UserMapper::toTeamMemberResponse)
+                .toList();
     }
 }

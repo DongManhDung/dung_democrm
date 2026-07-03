@@ -1,11 +1,14 @@
 package com.dung.democrm.service;
 
 import com.dung.democrm.dto.request.*;
+import com.dung.democrm.dto.response.TeamMemberResponse;
 import com.dung.democrm.dto.response.UserDetailResponse;
 import com.dung.democrm.dto.response.UserResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
+
+import java.util.List;
 
 public interface UserService {
     // Danh sách User
@@ -28,4 +31,6 @@ public interface UserService {
     // Change Status
     void changeStatus(Long id, ChangeUserStatusRequest request, Authentication authentication);
 
+    // Get My Team
+    List<TeamMemberResponse> getMyTeam(Authentication authentication);
 }
