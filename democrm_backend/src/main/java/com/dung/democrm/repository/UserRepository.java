@@ -5,13 +5,14 @@ import com.dung.democrm.common.enums.UserStatus;
 import com.dung.democrm.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends BaseRepository<User, Long> {
+public interface UserRepository extends BaseRepository<User, Long>, JpaSpecificationExecutor<User> {
     Optional<User> findByEmail(String email);
 
     List<User> findByRole(Role role);
@@ -31,8 +32,6 @@ public interface UserRepository extends BaseRepository<User, Long> {
     boolean existsByEmployeeCode(String employeeCode);
 
     boolean existsByPhone(String phone);
-
-    Page<User> findByActiveTrue(Pageable pageable);
 
     Page<User> findByFullNameContainingIgnoreCaseAndActiveTrue(String keyword, Pageable pageable);
 }

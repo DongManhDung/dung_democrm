@@ -2,6 +2,7 @@ package com.dung.democrm.service;
 
 import com.dung.democrm.dto.request.CreateUserRequest;
 import com.dung.democrm.dto.request.UpdateUserRequest;
+import com.dung.democrm.dto.request.UserSearchRequest;
 import com.dung.democrm.dto.response.UserDetailResponse;
 import com.dung.democrm.dto.response.UserResponse;
 import org.springframework.data.domain.Page;
@@ -9,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface UserService {
     // Danh sách User
-    Page<UserResponse> getAll(Pageable pageable);
+    Page<UserResponse> getAll(UserSearchRequest request, Pageable pageable);
 
     // Chi tiết User
     UserDetailResponse getById(Long id);

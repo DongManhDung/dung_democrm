@@ -2,6 +2,7 @@ package com.dung.democrm.controller;
 
 import com.dung.democrm.dto.request.CreateUserRequest;
 import com.dung.democrm.dto.request.UpdateUserRequest;
+import com.dung.democrm.dto.request.UserSearchRequest;
 import com.dung.democrm.dto.response.UserDetailResponse;
 import com.dung.democrm.dto.response.UserResponse;
 import com.dung.democrm.service.UserService;
@@ -20,9 +21,17 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public Page<UserResponse> getAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
-        return userService.getAll(pageable);
+    public Page<UserResponse> getAll(
+            UserSearchRequest request,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
+            ){
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        return userService.getAll(request, pageable);
     }
 
     @GetMapping("/{id}")

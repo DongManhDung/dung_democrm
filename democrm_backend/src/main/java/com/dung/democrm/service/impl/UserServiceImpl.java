@@ -6,15 +6,18 @@ import com.dung.democrm.common.exception.DuplicateResourceException;
 import com.dung.democrm.common.exception.ResourceNotFoundException;
 import com.dung.democrm.dto.request.CreateUserRequest;
 import com.dung.democrm.dto.request.UpdateUserRequest;
+import com.dung.democrm.dto.request.UserSearchRequest;
 import com.dung.democrm.dto.response.UserDetailResponse;
 import com.dung.democrm.dto.response.UserResponse;
 import com.dung.democrm.entity.User;
 import com.dung.democrm.mapper.UserMapper;
 import com.dung.democrm.repository.UserRepository;
 import com.dung.democrm.service.UserService;
+import com.dung.democrm.user.specification.UserSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +29,9 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public Page<UserResponse> getAll(Pageable pageable) {
-        return userRepository.findByActiveTrue(pageable).map(UserMapper::toResponse);
+    public Page<UserResponse> getAll(UserSearchRequest request, Pageable pageable) {
+        Specification<User> specification = UserSpecification.filter(request);
+        return userRepository.findAll(specification,pageable).map(UserMapper::toResponse);
     }
 
     @Override
