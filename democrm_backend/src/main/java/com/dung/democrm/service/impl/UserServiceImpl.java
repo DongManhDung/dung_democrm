@@ -240,4 +240,22 @@ public class UserServiceImpl implements UserService {
                 map(UserMapper::toTeamMemberResponse)
                 .toList();
     }
+
+    @Override
+    public List<TeamMemberResponse> getTeamByManager(Long managerId) {
+        User manager = userRepository.findById(managerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Manager not found."));
+
+        if(manager.getRole() != Role.MANAGER){
+            throw new BadRequestException("Selected user is not a manager");
+        }
+
+        if(manager.getStatus() == UserStatus.RESIGNED){
+            throw new BadRequestException("Manager has resigned.");
+        }
+
+        return userRepository.findByManagerIdAndActiveTrue(managerId).stream()
+                .map(UserMapper::toTeamMemberResponse)
+                .toList();
+    }
 }

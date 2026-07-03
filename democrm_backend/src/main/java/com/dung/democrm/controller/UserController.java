@@ -83,4 +83,9 @@ public class UserController {
     public List<TeamMemberResponse> getMyTeam(Authentication authentication){
         return userService.getMyTeam(authentication);
     }
+
+    @GetMapping("/managers/{managerId}/team")
+    public List<TeamMemberResponse> getTeamByManager(@PathVariable Long managerId){
+        return userService.getTeamByManager(managerId);
+    }
 }

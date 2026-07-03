@@ -33,4 +33,7 @@ public interface UserService {
 
     // Get My Team
     List<TeamMemberResponse> getMyTeam(Authentication authentication);
+
+    // Admin get team by Manager
+    List<TeamMemberResponse> getTeamByManager(Long managerId);
 }
