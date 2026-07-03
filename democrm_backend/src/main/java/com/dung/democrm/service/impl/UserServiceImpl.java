@@ -5,6 +5,7 @@ import com.dung.democrm.common.exception.BadRequestException;
 import com.dung.democrm.common.exception.DuplicateResourceException;
 import com.dung.democrm.common.exception.ResourceNotFoundException;
 import com.dung.democrm.dto.request.CreateUserRequest;
+import com.dung.democrm.dto.request.ResetPasswordRequest;
 import com.dung.democrm.dto.request.UpdateUserRequest;
 import com.dung.democrm.dto.request.UserSearchRequest;
 import com.dung.democrm.dto.response.UserDetailResponse;
@@ -12,6 +13,7 @@ import com.dung.democrm.dto.response.UserResponse;
 import com.dung.democrm.entity.User;
 import com.dung.democrm.mapper.UserMapper;
 import com.dung.democrm.repository.UserRepository;
+import com.dung.democrm.service.RefreshTokenService;
 import com.dung.democrm.service.UserService;
 import com.dung.democrm.user.specification.UserSpecification;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenService refreshTokenService;
 
     @Override
     public Page<UserResponse> getAll(UserSearchRequest request, Pageable pageable) {
@@ -140,5 +143,24 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found."));
         userRepository.softDelete(user);
+    }
+
+    @Override
+    public void resetPassword(Long id, ResetPasswordRequest request) {
+        User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found."));
+
+        if(!request.getNewPassword().equals(request.getConfirmPassword())){
+            throw new BadRequestException("Password and confirm password do not match.");
+        }
+
+        if(passwordEncoder.matches(request.getNewPassword(), user.getPassword())){
+            throw new BadRequestException("New password must be different from the current password.");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+
+        refreshTokenService.revokeAll(user);
+
+        userRepository.save(user);
     }
 }

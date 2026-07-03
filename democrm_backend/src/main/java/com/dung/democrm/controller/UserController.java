@@ -1,10 +1,12 @@
 package com.dung.democrm.controller;
 
 import com.dung.democrm.dto.request.CreateUserRequest;
+import com.dung.democrm.dto.request.ResetPasswordRequest;
 import com.dung.democrm.dto.request.UpdateUserRequest;
 import com.dung.democrm.dto.request.UserSearchRequest;
 import com.dung.democrm.dto.response.UserDetailResponse;
 import com.dung.democrm.dto.response.UserResponse;
+import com.dung.democrm.service.RefreshTokenService;
 import com.dung.democrm.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
+
+    private final RefreshTokenService refreshTokenService;
 
     @GetMapping
     public Page<UserResponse> getAll(
@@ -52,5 +57,14 @@ public class UserController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id){
         userService.delete(id);
+    }
+
+    @PatchMapping("/{id}/reset-password")
+    public ResponseEntity<Void> resetPassword(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody ResetPasswordRequest request
+            ){
+        userService.resetPassword(id, request);
+        return ResponseEntity.noContent().build();
     }
 }

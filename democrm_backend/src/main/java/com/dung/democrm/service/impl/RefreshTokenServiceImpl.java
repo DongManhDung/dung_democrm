@@ -59,6 +59,10 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     public void revokeAll(User user) {
         List<RefreshToken> tokens = refreshTokenRepository.findAllByUserAndRevokedFalse(user);
 
+        if(tokens.isEmpty()){
+            return;
+        }
+
         tokens.forEach(token -> token.setRevoked(true));
 
         refreshTokenRepository.saveAll(tokens);

@@ -1,6 +1,7 @@
 package com.dung.democrm.service;
 
 import com.dung.democrm.dto.request.CreateUserRequest;
+import com.dung.democrm.dto.request.ResetPasswordRequest;
 import com.dung.democrm.dto.request.UpdateUserRequest;
 import com.dung.democrm.dto.request.UserSearchRequest;
 import com.dung.democrm.dto.response.UserDetailResponse;
@@ -23,5 +24,7 @@ public interface UserService {
 
     // Soft delete
     void delete(Long id);
+
+    void resetPassword(Long id, ResetPasswordRequest request);
 
 }
