@@ -1,6 +1,7 @@
 package com.dung.democrm.service;
 
 import com.dung.democrm.dto.request.*;
+import com.dung.democrm.dto.response.ManagerResponse;
 import com.dung.democrm.dto.response.TeamMemberResponse;
 import com.dung.democrm.dto.response.UserDetailResponse;
 import com.dung.democrm.dto.response.UserResponse;
@@ -36,4 +37,7 @@ public interface UserService {
 
     // Admin get team by Manager
     List<TeamMemberResponse> getTeamByManager(Long managerId);
+
+    // All Managers
+    List<ManagerResponse> getAllManagers();
 }

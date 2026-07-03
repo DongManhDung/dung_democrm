@@ -1,6 +1,7 @@
 package com.dung.democrm.controller;
 
 import com.dung.democrm.dto.request.*;
+import com.dung.democrm.dto.response.ManagerResponse;
 import com.dung.democrm.dto.response.TeamMemberResponse;
 import com.dung.democrm.dto.response.UserDetailResponse;
 import com.dung.democrm.dto.response.UserResponse;
@@ -87,5 +88,10 @@ public class UserController {
     @GetMapping("/managers/{managerId}/team")
     public List<TeamMemberResponse> getTeamByManager(@PathVariable Long managerId){
         return userService.getTeamByManager(managerId);
+    }
+
+    @GetMapping("/managers")
+    public List<ManagerResponse> getAllManagers(){
+        return userService.getAllManagers();
     }
 }

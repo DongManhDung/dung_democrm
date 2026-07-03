@@ -1,9 +1,6 @@
 package com.dung.democrm.mapper;
 
-import com.dung.democrm.dto.response.CurrentUserResponse;
-import com.dung.democrm.dto.response.TeamMemberResponse;
-import com.dung.democrm.dto.response.UserDetailResponse;
-import com.dung.democrm.dto.response.UserResponse;
+import com.dung.democrm.dto.response.*;
 import com.dung.democrm.entity.User;
 
 public final class UserMapper {
@@ -68,6 +65,18 @@ public final class UserMapper {
                 .email(user.getEmail())
                 .phone(user.getPhone())
                 .status(user.getStatus())
+                .build();
+    }
+
+    public static ManagerResponse toManagerResponse(User manager, Long teamSize){
+        return ManagerResponse.builder()
+                .id(manager.getId())
+                .employeeCode(manager.getEmployeeCode())
+                .fullName(manager.getFullName())
+                .email(manager.getEmail())
+                .phone(manager.getPhone())
+                .status(manager.getStatus())
+                .teamSize(teamSize)
                 .build();
     }
 }

@@ -36,4 +36,7 @@ public interface UserRepository extends BaseRepository<User, Long>, JpaSpecifica
     Page<User> findByFullNameContainingIgnoreCaseAndActiveTrue(String keyword, Pageable pageable);
 
     List<User> findByManagerIdAndActiveTrue(Long managerId);
+
+    List<User> findByRoleAndActiveTrue(Role role);
+    long countByManagerIdAndActiveTrue(Long managerId);
 }

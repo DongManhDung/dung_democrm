@@ -6,6 +6,7 @@ import com.dung.democrm.common.exception.BadRequestException;
 import com.dung.democrm.common.exception.DuplicateResourceException;
 import com.dung.democrm.common.exception.ResourceNotFoundException;
 import com.dung.democrm.dto.request.*;
+import com.dung.democrm.dto.response.ManagerResponse;
 import com.dung.democrm.dto.response.TeamMemberResponse;
 import com.dung.democrm.dto.response.UserDetailResponse;
 import com.dung.democrm.dto.response.UserResponse;
@@ -256,6 +257,17 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.findByManagerIdAndActiveTrue(managerId).stream()
                 .map(UserMapper::toTeamMemberResponse)
+                .toList();
+    }
+
+    @Override
+    public List<ManagerResponse> getAllManagers() {
+        return userRepository.findByRoleAndActiveTrue(Role.MANAGER)
+                .stream()
+                .map(manager -> UserMapper.toManagerResponse(
+                        manager,
+                        userRepository.countByManagerIdAndActiveTrue(manager.getId())
+                ))
                 .toList();
     }
 }
