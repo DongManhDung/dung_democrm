@@ -3,6 +3,8 @@ package com.dung.democrm.repository;
 import com.dung.democrm.common.enums.Role;
 import com.dung.democrm.common.enums.UserStatus;
 import com.dung.democrm.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,4 +21,18 @@ public interface UserRepository extends BaseRepository<User, Long> {
     List<User> findByManager(User manager);
 
     List<User> findByManagerAndStatus(User manager, UserStatus status);
+
+    Optional<User> findByEmployeeCode(String employeeCode);
+
+    Optional<User> findByPhone(String phone);
+
+    boolean existsByEmail(String email);
+
+    boolean existsByEmployeeCode(String employeeCode);
+
+    boolean existsByPhone(String phone);
+
+    Page<User> findByActiveTrue(Pageable pageable);
+
+    Page<User> findByFullNameContainingIgnoreCaseAndActiveTrue(String keyword, Pageable pageable);
 }
