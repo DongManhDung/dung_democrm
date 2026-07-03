@@ -1,13 +1,11 @@
 package com.dung.democrm.service.impl;
 
 import com.dung.democrm.common.enums.Role;
+import com.dung.democrm.common.enums.UserStatus;
 import com.dung.democrm.common.exception.BadRequestException;
 import com.dung.democrm.common.exception.DuplicateResourceException;
 import com.dung.democrm.common.exception.ResourceNotFoundException;
-import com.dung.democrm.dto.request.CreateUserRequest;
-import com.dung.democrm.dto.request.ResetPasswordRequest;
-import com.dung.democrm.dto.request.UpdateUserRequest;
-import com.dung.democrm.dto.request.UserSearchRequest;
+import com.dung.democrm.dto.request.*;
 import com.dung.democrm.dto.response.UserDetailResponse;
 import com.dung.democrm.dto.response.UserResponse;
 import com.dung.democrm.entity.User;
@@ -20,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -162,5 +161,65 @@ public class UserServiceImpl implements UserService {
         refreshTokenService.revokeAll(user);
 
         userRepository.save(user);
+    }
+
+    @Override
+    public void changeStatus(Long id, ChangeUserStatusRequest request, Authentication authentication) {
+        User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found."));
+
+        // Rule 1: Không được đổi sang trạng thái hiện tại
+        if(user.getStatus() == request.getStatus()){
+            throw new BadRequestException("User is already " + request.getStatus() + ".");
+        }
+
+        // Rule 2: Admin không được tự khóa chính mình
+        if(authentication != null
+                && request.getStatus() == UserStatus.LOCKED
+                && authentication.getName().equals(user.getEmail())){
+            throw new BadRequestException("You cannot lock your own account.");
+        }
+
+        // Rule 3: Kiểm tra chuyển trạng thái hợp lệ
+        switch (user.getStatus()){
+            case ACTIVE -> {
+                // ACTIVE -> ON_LEAVE/LOCKED/RESIGNED
+                if(request.getStatus() != UserStatus.ON_LEAVE
+                        && request.getStatus() != UserStatus.LOCKED
+                        && request.getStatus() != UserStatus.RESIGNED
+                ){
+                    throw new BadRequestException("Cannot change status from ACTIVE to " + request.getStatus() + ".");
+                }
+            }
+
+            case ON_LEAVE -> {
+                // ON_LEAVE -> ACTIVE/LOCKED/RESIGNED
+                if(request.getStatus() != UserStatus.ACTIVE
+                        && request.getStatus() != UserStatus.LOCKED
+                        && request.getStatus() != UserStatus.RESIGNED
+                ){
+                    throw new BadRequestException("Cannot change status from ON_LEAVE to " + request.getStatus() + ".");
+                }
+            }
+
+            case LOCKED -> {
+                // LOCKED -> ACTIVE / RESIGNED
+                if(request.getStatus() != UserStatus.ACTIVE && request.getStatus() != UserStatus.RESIGNED){
+                    throw new BadRequestException("Cannot change status from LOCKED to " + request.getStatus() + ".");
+                }
+            }
+
+            case RESIGNED -> {
+                // Không cho mở gì hết
+                throw new BadRequestException("A resigned user cannot change status.");
+            }
+        }
+        user.setStatus(request.getStatus());
+        userRepository.save(user);
+
+        // Rule 4: Thu hồi toàn bộ Refresh Token nếu User bị chuyển sang LOCKED hoặc RESIGNED
+        if(request.getStatus() == UserStatus.LOCKED || request.getStatus() == UserStatus.RESIGNED){
+            refreshTokenService.revokeAll(user);
+        }
+
     }
 }

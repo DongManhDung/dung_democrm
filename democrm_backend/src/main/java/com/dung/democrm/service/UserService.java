@@ -1,13 +1,11 @@
 package com.dung.democrm.service;
 
-import com.dung.democrm.dto.request.CreateUserRequest;
-import com.dung.democrm.dto.request.ResetPasswordRequest;
-import com.dung.democrm.dto.request.UpdateUserRequest;
-import com.dung.democrm.dto.request.UserSearchRequest;
+import com.dung.democrm.dto.request.*;
 import com.dung.democrm.dto.response.UserDetailResponse;
 import com.dung.democrm.dto.response.UserResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 
 public interface UserService {
     // Danh sách User
@@ -26,5 +24,8 @@ public interface UserService {
     void delete(Long id);
 
     void resetPassword(Long id, ResetPasswordRequest request);
+
+    // Change Status
+    void changeStatus(Long id, ChangeUserStatusRequest request, Authentication authentication);
 
 }

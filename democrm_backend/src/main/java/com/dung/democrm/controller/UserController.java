@@ -1,9 +1,6 @@
 package com.dung.democrm.controller;
 
-import com.dung.democrm.dto.request.CreateUserRequest;
-import com.dung.democrm.dto.request.ResetPasswordRequest;
-import com.dung.democrm.dto.request.UpdateUserRequest;
-import com.dung.democrm.dto.request.UserSearchRequest;
+import com.dung.democrm.dto.request.*;
 import com.dung.democrm.dto.response.UserDetailResponse;
 import com.dung.democrm.dto.response.UserResponse;
 import com.dung.democrm.service.RefreshTokenService;
@@ -15,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -65,6 +63,16 @@ public class UserController {
             @Valid @RequestBody ResetPasswordRequest request
             ){
         userService.resetPassword(id, request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Void> changeStatus(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody ChangeUserStatusRequest request,
+            Authentication authentication
+            ){
+        userService.changeStatus(id, request, authentication);
         return ResponseEntity.noContent().build();
     }
 }
