@@ -5,6 +5,8 @@ import com.dung.democrm.common.enums.UserStatus;
 import com.dung.democrm.common.exception.BadRequestException;
 import com.dung.democrm.common.exception.ResourceNotFoundException;
 import com.dung.democrm.dto.request.CustomerRequest;
+import com.dung.democrm.dto.request.CustomerSearchRequest;
+import com.dung.democrm.user.specification.CustomerSpecification;
 import com.dung.democrm.dto.response.CustomerResponse;
 import com.dung.democrm.entity.Customer;
 import com.dung.democrm.entity.User;
@@ -74,6 +76,12 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.softDelete(customer);
     }
 
+    @Override
+    public Page<CustomerResponse> searchCustomers(CustomerSearchRequest request, Pageable pageable) {
+        return customerRepository.findAll(CustomerSpecification.search(request), pageable)
+                .map(CustomerMapper::toResponse);
+    }
+
     private void validateDuplicate(CustomerRequest request, Long customerId){
         customerRepository.findByPhoneAndActiveTrue(request.getPhone())
                 .ifPresent(customer -> {
@@ -106,4 +114,6 @@ public class CustomerServiceImpl implements CustomerService {
 
         return owner;
     }
+
+
 }

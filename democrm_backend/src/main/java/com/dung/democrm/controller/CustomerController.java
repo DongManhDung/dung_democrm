@@ -1,6 +1,7 @@
 package com.dung.democrm.controller;
 
 import com.dung.democrm.dto.request.CustomerRequest;
+import com.dung.democrm.dto.request.CustomerSearchRequest;
 import com.dung.democrm.dto.response.CustomerResponse;
 import com.dung.democrm.entity.Customer;
 import com.dung.democrm.service.CustomerService;
@@ -47,6 +48,14 @@ public class CustomerController {
     public ResponseEntity<Void> deleteCustomer(@PathVariable("id") Long id){
         customerService.deleteCustomer(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<CustomerResponse>> searchCustomers(
+            CustomerSearchRequest request,
+            Pageable pageable
+    ){
+        return ResponseEntity.ok(customerService.searchCustomers(request,pageable));
     }
 
 }
