@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Customer extends BaseEntity{
 
+    @Column(nullable = false)
     private String name;
 
     private String company;
@@ -22,5 +23,10 @@ public class Customer extends BaseEntity{
     @Column(nullable = false)
     private String phone;
 
+    @Column(unique = true)
     private String email;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private User owner;
 }
