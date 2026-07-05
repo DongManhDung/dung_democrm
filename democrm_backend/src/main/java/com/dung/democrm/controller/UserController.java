@@ -94,4 +94,13 @@ public class UserController {
     public List<ManagerResponse> getAllManagers(){
         return userService.getAllManagers();
     }
+
+    @PatchMapping("/{salesId}/assign-manager")
+    public ResponseEntity<Void> assignManager(
+            @PathVariable("salesId") Long salesId,
+            @Valid @RequestBody AssignManagerRequest request
+    ){
+        userService.assignManager(salesId, request);
+        return ResponseEntity.noContent().build();
+    }
 }

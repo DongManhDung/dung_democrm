@@ -40,4 +40,7 @@ public interface UserService {
 
     // All Managers
     List<ManagerResponse> getAllManagers();
+
+    // Assign manager
+    void assignManager(Long salesId, AssignManagerRequest request);
 }

@@ -270,4 +270,51 @@ public class UserServiceImpl implements UserService {
                 ))
                 .toList();
     }
+
+    @Override
+    public void assignManager(Long salesId, AssignManagerRequest request) {
+        User sales = userRepository.findById(salesId)
+                .orElseThrow(() -> new ResourceNotFoundException("Sales not found."));
+
+        User manager = userRepository.findById(request.getManagerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Manager not found."));
+
+        // Rule 1: Chỉ Sales mới được gán Manager
+        if(sales.getRole() != Role.SALES){
+            throw new BadRequestException("Only sales can be assigned to a manager.");
+        }
+
+        // Rule 2: Manager phải có role Manager
+        if(manager.getRole() != Role.MANAGER){
+            throw new BadRequestException("Selected user is not a manager.");
+        }
+
+        // Rule 3: Không được assign cho chính mình
+        if(sales.getId().equals(manager.getId())){
+            throw new BadRequestException("Cannot assign manager to themselves.");
+        }
+
+        // Rule 4: Sales đã nghỉ việc
+        if(sales.getStatus() == UserStatus.RESIGNED){
+            throw new BadRequestException("Cannot assign a resigned sales.");
+        }
+
+        // Rule 5: Manager đã nghỉ việc
+        if(manager.getStatus() == UserStatus.RESIGNED){
+            throw new BadRequestException("Cannot assign a resigned manager.");
+        }
+
+        // Rule 6: Manager bị khóa
+        if(manager.getStatus() == UserStatus.LOCKED){
+            throw new BadRequestException("Cannot assign a locked manager.");
+        }
+
+        // Rule 7: Đã thuộc manager này rồi
+        if(sales.getManager() != null && sales.getManager().getId().equals(manager.getId())){
+            throw new BadRequestException("Sales is already assigned to this manager");
+        }
+
+        sales.setManager(manager);
+        userRepository.save(sales);
+    }
 }
