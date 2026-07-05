@@ -317,4 +317,29 @@ public class UserServiceImpl implements UserService {
         sales.setManager(manager);
         userRepository.save(sales);
     }
+
+    @Override
+    public void removeManager(Long salesId) {
+        User sales = userRepository.findById(salesId)
+                .orElseThrow(() -> new ResourceNotFoundException("Sales not found."));
+
+        // Rule 1: Chỉ Sales mới được remove manager
+        if(sales.getRole() != Role.SALES){
+            throw new BadRequestException("Only sales can remove manager.");
+        }
+
+        // Rule 2: Sales phải đang có manager
+        if(sales.getManager() == null){
+            throw new BadRequestException("Sales is not assigned to any manager.");
+        }
+
+        // Rule 3: Sales đã nghỉ việc
+        if(sales.getStatus() == UserStatus.RESIGNED){
+            throw new BadRequestException("Cannot update a resigned sales.");
+        }
+
+        sales.setManager(null);
+
+        userRepository.save(sales);
+    }
 }

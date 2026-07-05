@@ -41,6 +41,9 @@ public interface UserService {
     // All Managers
     List<ManagerResponse> getAllManagers();
 
-    // Assign manager
+    // Assign sales to manager
     void assignManager(Long salesId, AssignManagerRequest request);
+
+    // Remove sales from manager
+    void removeManager(Long salesId);
 }

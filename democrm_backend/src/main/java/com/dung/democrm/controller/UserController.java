@@ -103,4 +103,12 @@ public class UserController {
         userService.assignManager(salesId, request);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{salesId}/remove-manager")
+    public ResponseEntity<Void> removeManager(
+            @PathVariable("salesId") Long salesId
+    ){
+        userService.removeManager(salesId);
+        return ResponseEntity.noContent().build();
+    }
 }
