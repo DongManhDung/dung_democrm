@@ -4,6 +4,7 @@ import com.dung.democrm.common.enums.Role;
 import com.dung.democrm.common.enums.UserStatus;
 import com.dung.democrm.common.exception.BadRequestException;
 import com.dung.democrm.common.exception.ResourceNotFoundException;
+import com.dung.democrm.dto.request.CustomerOwnerRequest;
 import com.dung.democrm.dto.request.CustomerRequest;
 import com.dung.democrm.dto.request.CustomerSearchRequest;
 import com.dung.democrm.user.specification.CustomerSpecification;
@@ -17,7 +18,11 @@ import com.dung.democrm.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -82,6 +87,57 @@ public class CustomerServiceImpl implements CustomerService {
                 .map(CustomerMapper::toResponse);
     }
 
+    @Override
+    public List<CustomerResponse> getMyCustomers() {
+        User currentUser = getCurrentUser();
+
+        return customerRepository.findByOwnerIdAndActiveTrue(currentUser.getId())
+                .stream()
+                .map(CustomerMapper::toResponse).toList();
+    }
+
+    @Override
+    public CustomerResponse assignOwner(Long customerId, CustomerOwnerRequest request) {
+
+        Customer customer = customerRepository.findByIdAndActiveTrue(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found."));
+
+        if(customer.getOwner() != null){
+            throw new BadRequestException("Customer already has an owner.");
+        }
+
+        User owner = getValidOwner(request.getOwnerId());
+
+        customer.setOwner(owner);
+
+        customerRepository.save(customer);
+
+        return CustomerMapper.toResponse(customer);
+    }
+
+    @Override
+    public CustomerResponse transferOwner(Long customerId, CustomerOwnerRequest request) {
+
+        Customer customer = customerRepository.findByIdAndActiveTrue(customerId)
+                .orElseThrow(() -> new BadRequestException("Customer not found."));
+
+        if(customer.getOwner() == null){
+            throw new BadRequestException("Customer has no owner.");
+        }
+
+        User newOwner = getValidOwner(request.getOwnerId());
+
+        if(customer.getOwner().getId().equals(newOwner.getId())){
+            throw new BadRequestException("Customer is already assigned to this owner.");
+        }
+
+        customer.setOwner(newOwner);
+
+        customerRepository.save(customer);
+
+        return CustomerMapper.toResponse(customer);
+    }
+
     private void validateDuplicate(CustomerRequest request, Long customerId){
         customerRepository.findByPhoneAndActiveTrue(request.getPhone())
                 .ifPresent(customer -> {
@@ -112,7 +168,20 @@ public class CustomerServiceImpl implements CustomerService {
             throw new BadRequestException("Cannot assign a resigned user as owner.");
         }
 
+        if (owner.getStatus() == UserStatus.LOCKED){
+            throw new BadRequestException("Cannot assign a locked user as owner.");
+        }
+
         return owner;
+    }
+
+    private User getCurrentUser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();;
+
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Current user not found."));
     }
 
 

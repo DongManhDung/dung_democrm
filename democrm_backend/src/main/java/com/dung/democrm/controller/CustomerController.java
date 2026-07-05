@@ -1,17 +1,21 @@
 package com.dung.democrm.controller;
 
+import com.dung.democrm.dto.request.CustomerOwnerRequest;
 import com.dung.democrm.dto.request.CustomerRequest;
 import com.dung.democrm.dto.request.CustomerSearchRequest;
 import com.dung.democrm.dto.response.CustomerResponse;
 import com.dung.democrm.entity.Customer;
 import com.dung.democrm.service.CustomerService;
 import jakarta.validation.Valid;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/customers")
@@ -57,5 +61,23 @@ public class CustomerController {
     ){
         return ResponseEntity.ok(customerService.searchCustomers(request,pageable));
     }
+
+    @GetMapping("/my-customers")
+    public ResponseEntity<List<CustomerResponse>> getMyCustomers(){
+        return ResponseEntity.ok(customerService.getMyCustomers());
+    }
+
+    @PatchMapping("/{id}/assign-owner")
+    public ResponseEntity<CustomerResponse> assignOwner(@PathVariable("id") Long id,
+                                                        @Valid @RequestBody CustomerOwnerRequest request){
+        return ResponseEntity.ok(customerService.assignOwner(id, request));
+    }
+
+    @PatchMapping("/{id}/transfer-owner")
+    public ResponseEntity<CustomerResponse> transferOwner(@PathVariable("id") Long id,
+                                                          @Valid @RequestBody CustomerOwnerRequest request){
+        return ResponseEntity.ok(customerService.transferOwner(id, request));
+    }
+
 
 }
