@@ -18,7 +18,9 @@ import com.dung.democrm.mapper.CustomerMapper;
 import com.dung.democrm.repository.CustomerRepository;
 import com.dung.democrm.repository.UserRepository;
 import com.dung.democrm.service.CustomerService;
+import com.dung.democrm.util.CustomerExcelExporter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -26,6 +28,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -217,6 +220,12 @@ public class CustomerServiceImpl implements CustomerService {
                 );
     }
 
+    @Override
+    public ByteArrayInputStream exportCustomers() {
+        List<Customer> customers = customerRepository.findAllByActiveTrue();
+        return CustomerExcelExporter.export(customers);
+    }
+
     private void validateDuplicate(CustomerRequest request, Long customerId){
         customerRepository.findByPhoneAndActiveTrue(request.getPhone())
                 .ifPresent(customer -> {
@@ -262,6 +271,4 @@ public class CustomerServiceImpl implements CustomerService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Current user not found."));
     }
-
-
 }

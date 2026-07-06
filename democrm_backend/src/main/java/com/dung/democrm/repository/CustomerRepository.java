@@ -14,6 +14,7 @@ public interface CustomerRepository extends BaseRepository<Customer, Long> {
     Optional<Customer> findByPhoneAndActiveTrue(String phone);
     Optional<Customer> findByEmailAndActiveTrue(String email);
     Page<Customer> findAllByActiveTrue(Pageable pageable);
+    List<Customer> findAllByActiveTrue(); // Lấy toàn bộ k phân trang
     Optional<Customer> findByIdAndActiveTrue(Long id);
     List<Customer> findByOwnerIdAndActiveTrue(Long ownerId);
 }

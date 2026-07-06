@@ -13,9 +13,13 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -105,5 +109,17 @@ public class CustomerController {
             @NotBlank (message = "Phone number is required.")
             String phone){
         return ResponseEntity.ok(customerService.checkDuplicatePhone(phone));
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<Resource> exportCustomers(){
+        InputStreamResource file = new InputStreamResource(customerService.exportCustomers());
+
+        return ResponseEntity.ok().header(
+                HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=customers.xlsx")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(file);
+
     }
 }
