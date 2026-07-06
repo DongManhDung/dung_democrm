@@ -5,6 +5,7 @@ import com.dung.democrm.dto.request.CustomerRequest;
 import com.dung.democrm.dto.request.CustomerSearchRequest;
 import com.dung.democrm.dto.response.CustomerDetailResponse;
 import com.dung.democrm.dto.response.CustomerResponse;
+import com.dung.democrm.dto.response.CustomerTimelineResponse;
 import com.dung.democrm.entity.Customer;
 import com.dung.democrm.service.CustomerService;
 import jakarta.validation.Valid;
@@ -85,5 +86,12 @@ public class CustomerController {
         @PathVariable("id") Long id
     ){
         return ResponseEntity.ok(customerService.getCustomerDetail(id));
+    }
+
+    @GetMapping("/{id}/timeline")
+    public ResponseEntity<List<CustomerTimelineResponse>> getCustomerTimeLine(
+            @PathVariable("id") Long customerId
+    ){
+        return ResponseEntity.ok(customerService.getCustomerTimeline(customerId));
     }
 }

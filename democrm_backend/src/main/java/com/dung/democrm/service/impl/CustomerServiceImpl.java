@@ -8,6 +8,7 @@ import com.dung.democrm.dto.request.CustomerOwnerRequest;
 import com.dung.democrm.dto.request.CustomerRequest;
 import com.dung.democrm.dto.request.CustomerSearchRequest;
 import com.dung.democrm.dto.response.CustomerDetailResponse;
+import com.dung.democrm.dto.response.CustomerTimelineResponse;
 import com.dung.democrm.user.specification.CustomerSpecification;
 import com.dung.democrm.dto.response.CustomerResponse;
 import com.dung.democrm.entity.Customer;
@@ -24,6 +25,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -157,6 +160,40 @@ public class CustomerServiceImpl implements CustomerService {
         response.setTotalRevenue(BigDecimal.ZERO);
 
         return response;
+    }
+
+    @Override
+    public List<CustomerTimelineResponse> getCustomerTimeline(Long customerId) {
+        Customer customer = customerRepository.findByIdAndActiveTrue(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found."));
+
+        List<CustomerTimelineResponse> timeLine = new ArrayList<>();
+
+        timeLine.add(
+                CustomerTimelineResponse.builder()
+                        .occurredAt(customer.getCreatedAt())
+                        .type("CUSTOMER_CREATED")
+                        .title("Customer created")
+                        .description("Customer has been created")
+                        .build()
+        );
+
+        if(customer.getOwner() != null){
+            timeLine.add(
+                    CustomerTimelineResponse.builder()
+                            .occurredAt(customer.getUpdatedAt())
+                            .type("OWNER_ASSIGNED")
+                            .title("Owner Assigned")
+                            .description("Assigned to " + customer.getOwner().getFullName())
+                            .build()
+            );
+        }
+
+        timeLine.sort(
+                Comparator.comparing(CustomerTimelineResponse::getOccurredAt).reversed()
+        );
+
+        return timeLine;
     }
 
     private void validateDuplicate(CustomerRequest request, Long customerId){
