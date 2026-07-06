@@ -4,6 +4,7 @@ package com.dung.democrm.service;
 import com.dung.democrm.dto.request.CustomerOwnerRequest;
 import com.dung.democrm.dto.request.CustomerRequest;
 import com.dung.democrm.dto.request.CustomerSearchRequest;
+import com.dung.democrm.dto.response.CustomerDetailResponse;
 import com.dung.democrm.dto.response.CustomerResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,4 +23,5 @@ public interface CustomerService {
     List<CustomerResponse> getMyCustomers();
     CustomerResponse assignOwner(Long customerId, CustomerOwnerRequest request);
     CustomerResponse transferOwner(Long customerId, CustomerOwnerRequest request);
+    CustomerDetailResponse getCustomerDetail(Long id);
 }

@@ -7,6 +7,7 @@ import com.dung.democrm.common.exception.ResourceNotFoundException;
 import com.dung.democrm.dto.request.CustomerOwnerRequest;
 import com.dung.democrm.dto.request.CustomerRequest;
 import com.dung.democrm.dto.request.CustomerSearchRequest;
+import com.dung.democrm.dto.response.CustomerDetailResponse;
 import com.dung.democrm.user.specification.CustomerSpecification;
 import com.dung.democrm.dto.response.CustomerResponse;
 import com.dung.democrm.entity.Customer;
@@ -22,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -136,6 +138,25 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.save(customer);
 
         return CustomerMapper.toResponse(customer);
+    }
+
+    @Override
+    public CustomerDetailResponse getCustomerDetail(Long id) {
+        Customer customer = customerRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found."));
+
+        CustomerDetailResponse response = CustomerMapper.toDetailResponse(customer);
+
+        // Về sau khu này sẽ chi tiết hơn khi có: Lead, Opportunity, Contract, Activity
+
+        response.setTotalLeads(0);
+        response.setTotalOpportunities(0);
+        response.setTotalWonOpportunities(0);
+        response.setTotalContracts(0);
+        response.setTotalActivities(0);
+        response.setTotalRevenue(BigDecimal.ZERO);
+
+        return response;
     }
 
     private void validateDuplicate(CustomerRequest request, Long customerId){

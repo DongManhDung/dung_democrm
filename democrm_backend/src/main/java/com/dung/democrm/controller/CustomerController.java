@@ -3,6 +3,7 @@ package com.dung.democrm.controller;
 import com.dung.democrm.dto.request.CustomerOwnerRequest;
 import com.dung.democrm.dto.request.CustomerRequest;
 import com.dung.democrm.dto.request.CustomerSearchRequest;
+import com.dung.democrm.dto.response.CustomerDetailResponse;
 import com.dung.democrm.dto.response.CustomerResponse;
 import com.dung.democrm.entity.Customer;
 import com.dung.democrm.service.CustomerService;
@@ -79,5 +80,10 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.transferOwner(id, request));
     }
 
-
+    @GetMapping("/{id}/detail")
+    public ResponseEntity<CustomerDetailResponse> getCustomerDetail(
+        @PathVariable("id") Long id
+    ){
+        return ResponseEntity.ok(customerService.getCustomerDetail(id));
+    }
 }
