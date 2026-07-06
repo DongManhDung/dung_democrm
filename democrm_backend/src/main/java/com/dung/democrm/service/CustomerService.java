@@ -7,6 +7,7 @@ import com.dung.democrm.dto.request.CustomerSearchRequest;
 import com.dung.democrm.dto.response.CustomerDetailResponse;
 import com.dung.democrm.dto.response.CustomerResponse;
 import com.dung.democrm.dto.response.CustomerTimelineResponse;
+import com.dung.democrm.dto.response.DuplicatePhoneResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -26,4 +27,5 @@ public interface CustomerService {
     CustomerResponse transferOwner(Long customerId, CustomerOwnerRequest request);
     CustomerDetailResponse getCustomerDetail(Long id);
     List<CustomerTimelineResponse> getCustomerTimeline(Long customerId);
+    DuplicatePhoneResponse checkDuplicatePhone(String phone);
 }

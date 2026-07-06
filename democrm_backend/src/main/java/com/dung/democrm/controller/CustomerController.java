@@ -6,15 +6,18 @@ import com.dung.democrm.dto.request.CustomerSearchRequest;
 import com.dung.democrm.dto.response.CustomerDetailResponse;
 import com.dung.democrm.dto.response.CustomerResponse;
 import com.dung.democrm.dto.response.CustomerTimelineResponse;
+import com.dung.democrm.dto.response.DuplicatePhoneResponse;
 import com.dung.democrm.entity.Customer;
 import com.dung.democrm.service.CustomerService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/customers")
 @RequiredArgsConstructor
+@Validated
 public class CustomerController {
 
     private final CustomerService customerService;
@@ -93,5 +97,13 @@ public class CustomerController {
             @PathVariable("id") Long customerId
     ){
         return ResponseEntity.ok(customerService.getCustomerTimeline(customerId));
+    }
+
+    @GetMapping("/check-duplicate")
+    public ResponseEntity<DuplicatePhoneResponse> checkDuplicatePhone(
+            @RequestParam
+            @NotBlank (message = "Phone number is required.")
+            String phone){
+        return ResponseEntity.ok(customerService.checkDuplicatePhone(phone));
     }
 }

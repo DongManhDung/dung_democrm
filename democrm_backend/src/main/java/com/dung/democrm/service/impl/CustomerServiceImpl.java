@@ -9,6 +9,7 @@ import com.dung.democrm.dto.request.CustomerRequest;
 import com.dung.democrm.dto.request.CustomerSearchRequest;
 import com.dung.democrm.dto.response.CustomerDetailResponse;
 import com.dung.democrm.dto.response.CustomerTimelineResponse;
+import com.dung.democrm.dto.response.DuplicatePhoneResponse;
 import com.dung.democrm.user.specification.CustomerSpecification;
 import com.dung.democrm.dto.response.CustomerResponse;
 import com.dung.democrm.entity.Customer;
@@ -23,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -194,6 +196,25 @@ public class CustomerServiceImpl implements CustomerService {
         );
 
         return timeLine;
+    }
+
+    @Override
+    public DuplicatePhoneResponse checkDuplicatePhone(String phone) {
+
+        return customerRepository.findByPhoneAndActiveTrue(phone)
+                .map(customer -> DuplicatePhoneResponse.builder()
+                        .duplicated(true)
+                        .customerId(customer.getId())
+                        .customerName(customer.getName())
+                        .company(customer.getCompany())
+                        .ownerId(customer.getOwner() != null ? customer.getOwner().getId() : null)
+                        .ownerName(customer.getOwner() != null ? customer.getOwner().getFullName() : null)
+                        .ownerEmployeeCode(customer.getOwner() != null ? customer.getOwner().getEmployeeCode() : null)
+                        .build()
+                )
+                .orElse(
+                        DuplicatePhoneResponse.builder().duplicated(false).build()
+                );
     }
 
     private void validateDuplicate(CustomerRequest request, Long customerId){
