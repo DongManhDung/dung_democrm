@@ -6,7 +6,7 @@ public enum LeadStatus {
     QUALIFIED,
     DEMO,
     PROPOSAL,
-    NEGOTIATION,
+    NEGOTIATING,
     WON,
     LOST,
     REASSIGNED, // Lead được chuyển cho Sales khác

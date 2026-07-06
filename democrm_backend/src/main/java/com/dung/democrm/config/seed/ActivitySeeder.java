@@ -54,7 +54,7 @@ public class ActivitySeeder {
             case QUALIFIED -> List.of(ActivityType.CALL, ActivityType.MEETING, ActivityType.FOLLOW_UP);
             case DEMO -> List.of(ActivityType.CALL, ActivityType.MEETING, ActivityType.DEMO);
             case PROPOSAL -> List.of(ActivityType.CALL, ActivityType.DEMO, ActivityType.QUOTATION);
-            case NEGOTIATION -> List.of(ActivityType.DEMO, ActivityType.FOLLOW_UP, ActivityType.MEETING);
+            case NEGOTIATING -> List.of(ActivityType.DEMO, ActivityType.FOLLOW_UP, ActivityType.MEETING);
             case WON -> List.of(ActivityType.CALL, ActivityType.DEMO, ActivityType.FOLLOW_UP);
             case LOST -> List.of(ActivityType.CALL, ActivityType.FOLLOW_UP);
             case REASSIGNED -> List.of(ActivityType.CALL, ActivityType.EMAIL, ActivityType.FOLLOW_UP);

@@ -1,8 +1,6 @@
 package com.dung.democrm.config.seed;
 
-import com.dung.democrm.common.enums.LeadSource;
-import com.dung.democrm.common.enums.LeadStatus;
-import com.dung.democrm.common.enums.Role;
+import com.dung.democrm.common.enums.*;
 import com.dung.democrm.entity.Customer;
 import com.dung.democrm.entity.Lead;
 import com.dung.democrm.entity.User;
@@ -34,8 +32,9 @@ public class LeadSeeder {
 
         List<Lead> leads = new ArrayList<>();
 
+        int limit = Math.min(700, customers.size());
 
-        for(int i = 0; i < 700; i++){
+        for(int i = 0; i < limit; i++){
             Lead lead = new Lead();
 
             lead.setCustomer(customers.get(i));
@@ -46,10 +45,15 @@ public class LeadSeeder {
 
             lead.setLeadStatus(randomStatus());
             lead.setSource(randomSource());
+            lead.setPriority(randomPriority());
 
             LocalDate assignedDate = LocalDate.now().minusDays(random.nextInt(60));
             lead.setAssignedAt(assignedDate);
             lead.setExpiredAt(assignedDate.plusDays(15));
+
+            lead.setTransferCount(random.nextInt(3));
+
+            lead.setNote("Seed lead #" + (i + 1));
 
             if(lead.getLeadStatus() == LeadStatus.LOST){
                 lead.setLostReason(randomLostReason());
@@ -84,7 +88,7 @@ public class LeadSeeder {
         }
 
         if(randomValue < 95){
-            return LeadStatus.NEGOTIATION;
+            return LeadStatus.NEGOTIATING;
         }
 
         if(randomValue < 98){
@@ -122,21 +126,26 @@ public class LeadSeeder {
             return LeadSource.EMAIL;
         }
 
-        return LeadSource.WALK_IN;
+        if(randomValue < 99){
+            return LeadSource.WALK_IN;
+        }
+
+        return LeadSource.OTHER;
     }
 
-    private String randomLostReason(){
-        String[] reason = {
-                "Không nhấc máy.",
-                "Không có nhu cầu.",
-                "Gọi thuê bao.",
-                "Đã mua của bên khác.",
-                "Sai số điện thoại.",
-                "Không phản hồi.",
-                "Khách có lắng nghe, chưa sử dụng, xin được thông tin tương tác.",
-                "Chăm sóc thêm."
-        };
+    private LeadPriority randomPriority(){
+        int value = random.nextInt(100);
 
-        return reason[random.nextInt(reason.length)];
+        if(value < 45) return LeadPriority.MEDIUM;
+        if(value < 70) return LeadPriority.LOW;
+        if (value < 90) return LeadPriority.HIGH;
+
+        return LeadPriority.URGENT;
+    }
+
+    private LostReason randomLostReason(){
+        LostReason[] values = LostReason.values();
+
+        return values[random.nextInt(values.length)];
     }
 }

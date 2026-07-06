@@ -1,7 +1,9 @@
 package com.dung.democrm.entity;
 
+import com.dung.democrm.common.enums.LeadPriority;
 import com.dung.democrm.common.enums.LeadSource;
 import com.dung.democrm.common.enums.LeadStatus;
+import com.dung.democrm.common.enums.LostReason;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +29,7 @@ public class Lead extends BaseEntity{
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-    // Manager quản lý team của lead, không đổi khi chuyển Lead giữa các Sales cùng team
+    // Manager của Sales (giữ nguyên khi transfer trong cùng team)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_owner_id", nullable = false)
     private User teamOwner;
@@ -41,6 +43,16 @@ public class Lead extends BaseEntity{
     @Column(nullable = false)
     private LeadSource source;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private LeadPriority priority = LeadPriority.MEDIUM;
+
+    @Enumerated(EnumType.STRING)
+    private LostReason lostReason;
+
+    @Column(length = 500)
+    private String note;
+
     // Khi sales nhận đuợc lead
     @Column(nullable = false)
     private LocalDate assignedAt;
@@ -49,6 +61,7 @@ public class Lead extends BaseEntity{
     @Column(nullable = false)
     private LocalDate expiredAt;
 
-    @Column(length = 300)
-    private String lostReason;
+    @Column(nullable = false)
+    private Integer transferCount = 0;
+
 }

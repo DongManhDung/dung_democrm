@@ -66,7 +66,7 @@ public class OpportunitySeeder {
 
     private OpportunityStatus mapOpportunityStatus(LeadStatus leadStatus){
         return switch (leadStatus){
-            case NEGOTIATION -> OpportunityStatus.OPEN;
+            case NEGOTIATING -> OpportunityStatus.OPEN;
             case WON -> OpportunityStatus.WON;
             case LOST -> OpportunityStatus.LOST;
             default -> null;
