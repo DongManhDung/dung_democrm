@@ -5,15 +5,16 @@ import com.dung.democrm.entity.Lead;
 import org.springframework.stereotype.Component;
 
 @Component
-public final class LeadMapper {
+public class LeadMapper {
+
     public LeadResponse toResponse(Lead lead){
         return LeadResponse.builder()
                 .id(lead.getId())
-                .customerId(lead.getCustomer() != null ? lead.getCustomer().getId() : null)
-                .customerName(lead.getCustomer() != null ? lead.getCustomer().getName() : null)
-                .ownerId(lead.getOwner() != null ? lead.getOwner().getId() : null)
-                .ownerName(lead.getOwner() != null ? lead.getOwner().getFullName() : null)
-                .ownerEmployeeCode(lead.getOwner() != null ? lead.getOwner().getEmployeeCode() : null)
+                .customerId(lead.getCustomer().getId())
+                .customerName(lead.getCustomer().getName())
+                .ownerId(lead.getOwner().getId())
+                .ownerName(lead.getOwner().getFullName())
+                .ownerEmployeeCode(lead.getOwner().getEmployeeCode())
                 .status(lead.getLeadStatus())
                 .source(lead.getSource())
                 .priority(lead.getPriority())

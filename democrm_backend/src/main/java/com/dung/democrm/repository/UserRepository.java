@@ -39,4 +39,6 @@ public interface UserRepository extends BaseRepository<User, Long>, JpaSpecifica
 
     List<User> findByRoleAndActiveTrue(Role role);
     long countByManagerIdAndActiveTrue(Long managerId);
+
+    Optional<User> findByIdAndActiveTrue(Long id);
 }
