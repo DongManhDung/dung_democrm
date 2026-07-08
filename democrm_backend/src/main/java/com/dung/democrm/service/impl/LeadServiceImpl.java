@@ -7,6 +7,7 @@ import com.dung.democrm.common.enums.UserStatus;
 import com.dung.democrm.common.exception.BadRequestException;
 import com.dung.democrm.common.exception.ResourceNotFoundException;
 import com.dung.democrm.dto.request.LeadRequest;
+import com.dung.democrm.dto.request.LeadSearchRequest;
 import com.dung.democrm.dto.response.LeadResponse;
 import com.dung.democrm.entity.Customer;
 import com.dung.democrm.entity.Lead;
@@ -16,6 +17,7 @@ import com.dung.democrm.repository.CustomerRepository;
 import com.dung.democrm.repository.LeadRepository;
 import com.dung.democrm.repository.UserRepository;
 import com.dung.democrm.service.LeadService;
+import com.dung.democrm.user.specification.LeadSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +37,13 @@ public class LeadServiceImpl implements LeadService {
 
     @Override
     public Page<LeadResponse> getAllLeads(Pageable pageable) {
-        return leadRepository.findAllByActiveTrue(pageable).map(leadMapper::toResponse);
+        return searchLeads(new LeadSearchRequest(), pageable);
+    }
+
+    @Override
+    public Page<LeadResponse> searchLeads(LeadSearchRequest request, Pageable pageable) {
+        return leadRepository.findAll(LeadSpecification.search(request), pageable)
+                .map(leadMapper::toResponse);
     }
 
     @Override

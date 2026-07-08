@@ -1,6 +1,7 @@
 package com.dung.democrm.controller;
 
 import com.dung.democrm.dto.request.LeadRequest;
+import com.dung.democrm.dto.request.LeadSearchRequest;
 import com.dung.democrm.dto.response.LeadResponse;
 import com.dung.democrm.service.LeadService;
 import jakarta.validation.Valid;
@@ -47,5 +48,11 @@ public class LeadController {
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public void deleteLead(@PathVariable("id") Long id){
         leadService.deleteLead(id);
+    }
+
+    @GetMapping("/search")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    public Page<LeadResponse> searchLeads(@ModelAttribute LeadSearchRequest request, Pageable pageable){
+        return leadService.searchLeads(request, pageable);
     }
 }
