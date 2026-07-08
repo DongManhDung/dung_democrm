@@ -2,6 +2,7 @@ package com.dung.democrm.controller;
 
 import com.dung.democrm.dto.request.LeadRequest;
 import com.dung.democrm.dto.request.LeadSearchRequest;
+import com.dung.democrm.dto.response.LeadDetailResponse;
 import com.dung.democrm.dto.response.LeadResponse;
 import com.dung.democrm.service.LeadService;
 import jakarta.validation.Valid;
@@ -54,5 +55,10 @@ public class LeadController {
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public Page<LeadResponse> searchLeads(@ModelAttribute LeadSearchRequest request, Pageable pageable){
         return leadService.searchLeads(request, pageable);
+    }
+    @GetMapping("/{id}/detail")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    public LeadDetailResponse getLeadDetail(@PathVariable("id") Long id){
+        return leadService.getLeadDetail(id);
     }
 }

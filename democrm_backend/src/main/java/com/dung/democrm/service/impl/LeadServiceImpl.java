@@ -8,6 +8,7 @@ import com.dung.democrm.common.exception.BadRequestException;
 import com.dung.democrm.common.exception.ResourceNotFoundException;
 import com.dung.democrm.dto.request.LeadRequest;
 import com.dung.democrm.dto.request.LeadSearchRequest;
+import com.dung.democrm.dto.response.LeadDetailResponse;
 import com.dung.democrm.dto.response.LeadResponse;
 import com.dung.democrm.entity.Customer;
 import com.dung.democrm.entity.Lead;
@@ -112,6 +113,13 @@ public class LeadServiceImpl implements LeadService {
         lead.setActive(false);
         lead.setDeletedAt(LocalDateTime.now());
         leadRepository.save(lead);
+    }
+
+    @Override
+    public LeadDetailResponse getLeadDetail(Long id) {
+        Lead lead = leadRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Lead not found."));
+        return leadMapper.toDetailResponse(lead);
     }
 
     private Lead getValidLead(Long id){
