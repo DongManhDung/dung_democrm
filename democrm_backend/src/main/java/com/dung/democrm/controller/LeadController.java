@@ -82,4 +82,13 @@ public class LeadController {
             ){
         return leadService.assignLead(id, request);
     }
+
+    @PutMapping("/{id}/transfer")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    public LeadResponse transferLead(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody LeadAssignRequest request
+    ){
+        return leadService.transferLead(id, request);
+    }
 }

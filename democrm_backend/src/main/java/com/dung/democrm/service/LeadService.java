@@ -17,4 +17,5 @@ public interface LeadService {
     void deleteLead(Long id);
     LeadDetailResponse getLeadDetail(Long id);
     LeadResponse assignLead(Long id, LeadAssignRequest request);
+    LeadResponse transferLead(Long id, LeadAssignRequest request);
 }

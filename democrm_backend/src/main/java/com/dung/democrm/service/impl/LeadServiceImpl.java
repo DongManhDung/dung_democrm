@@ -169,6 +169,44 @@ public class LeadServiceImpl implements LeadService {
         return leadMapper.toResponse(updatedLead);
     }
 
+    @Override
+    public LeadResponse transferLead(Long id, LeadAssignRequest request) {
+        Lead lead = getValidLead(id);
+
+        User newOwner = getValidOwner(request.getOwnerId());
+
+        if(lead.getOwner().getId().equals(newOwner.getId())){
+            throw new BadRequestException("Lead is already assigned to this owner.");
+        }
+
+        User oldOwner = lead.getOwner();
+
+        lead.setOwner(newOwner);
+        lead.setTeamOwner(newOwner.getManager());
+
+        LocalDate assignedAt = LocalDate.now();
+        lead.setAssignedAt(assignedAt);
+        lead.setExpiredAt(assignedAt.plusDays(15));
+
+        lead.setTransferCount(lead.getTransferCount() + 1); // Tăng khi transfer
+
+        Lead updatedLead = leadRepository.save(lead);
+
+        leadTimelineService.saveTimeLine(
+                updatedLead,
+                TimelineAction.TRANSFERRED,
+                String.format(
+                        "Lead transferred from %s (%s) to %s (%s).",
+                        oldOwner.getFullName(),
+                        oldOwner.getEmployeeCode(),
+                        newOwner.getFullName(),
+                        newOwner.getEmployeeCode()
+                ),
+                getCurrentUser()
+        );
+        return leadMapper.toResponse(updatedLead);
+    }
+
     private Lead getValidLead(Long id){
         return leadRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lead not found."));
