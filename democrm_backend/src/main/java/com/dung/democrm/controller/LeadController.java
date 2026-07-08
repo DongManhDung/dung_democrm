@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
@@ -33,7 +34,7 @@ public class LeadController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
-    public LeadResponse getLeadById(@PathVariable("id") Long id){
+    public LeadResponse getLeadById(@PathVariable("id") Long id) throws AccessDeniedException {
         return leadService.getLeadById(id);
     }
 
@@ -64,7 +65,7 @@ public class LeadController {
     }
     @GetMapping("/{id}/detail")
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
-    public LeadDetailResponse getLeadDetail(@PathVariable("id") Long id){
+    public LeadDetailResponse getLeadDetail(@PathVariable("id") Long id) throws AccessDeniedException {
         return leadService.getLeadDetail(id);
     }
 

@@ -6,6 +6,7 @@ import com.dung.democrm.common.enums.Role;
 import com.dung.democrm.common.enums.TimelineAction;
 import com.dung.democrm.common.enums.UserStatus;
 import com.dung.democrm.common.exception.BadRequestException;
+import com.dung.democrm.common.exception.ForbiddenException;
 import com.dung.democrm.common.exception.ResourceNotFoundException;
 import com.dung.democrm.dto.request.LeadAssignRequest;
 import com.dung.democrm.dto.request.LeadRequest;
@@ -28,6 +29,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -48,13 +51,14 @@ public class LeadServiceImpl implements LeadService {
 
     @Override
     public Page<LeadResponse> searchLeads(LeadSearchRequest request, Pageable pageable) {
-        return leadRepository.findAll(LeadSpecification.search(request), pageable)
+        User currentUser = getCurrentUser();
+        return leadRepository.findAll(LeadSpecification.search(request, currentUser), pageable)
                 .map(leadMapper::toResponse);
     }
 
     @Override
-    public LeadResponse getLeadById(Long id) {
-        return leadMapper.toResponse(getValidLead(id));
+    public LeadResponse getLeadById(Long id) throws AccessDeniedException {
+        return leadMapper.toResponse(getAccessibleLeadForRead(id));
     }
 
     @Override
@@ -130,10 +134,8 @@ public class LeadServiceImpl implements LeadService {
     }
 
     @Override
-    public LeadDetailResponse getLeadDetail(Long id) {
-        Lead lead = leadRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Lead not found."));
-        return leadMapper.toDetailResponse(lead);
+    public LeadDetailResponse getLeadDetail(Long id) throws AccessDeniedException {
+        return leadMapper.toDetailResponse(getAccessibleLeadForRead(id));
     }
 
     @Override
@@ -210,6 +212,26 @@ public class LeadServiceImpl implements LeadService {
     private Lead getValidLead(Long id){
         return leadRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lead not found."));
+    }
+
+    private Lead getAccessibleLeadForRead(Long id) throws AccessDeniedException {
+        Lead lead = getValidLead(id);
+
+        User currentUser = getCurrentUser();
+
+        if(currentUser.getRole() == Role.ADMIN){
+            return lead;
+        }
+
+        if(currentUser.getRole() == Role.MANAGER && lead.getTeamOwner().getId().equals(currentUser.getId())){
+            return lead;
+        }
+
+        if (currentUser.getRole() == Role.SALES && lead.getOwner().getId().equals(currentUser.getId())){
+            return lead;
+        }
+
+        throw new AccessDeniedException("You do not have permission to access this lead.");
     }
 
     private Customer getValidCustomer(Long customerId){

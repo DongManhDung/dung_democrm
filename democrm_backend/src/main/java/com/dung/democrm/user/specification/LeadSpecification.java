@@ -1,5 +1,6 @@
 package com.dung.democrm.user.specification;
 
+import com.dung.democrm.common.enums.Role;
 import com.dung.democrm.dto.request.LeadSearchRequest;
 import com.dung.democrm.entity.Customer;
 import com.dung.democrm.entity.Lead;
@@ -18,12 +19,26 @@ public final class LeadSpecification {
 
     }
 
-    public static Specification<Lead> search(LeadSearchRequest request){
+    public static Specification<Lead> search(LeadSearchRequest request, User currentUser){
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             // Active
             predicates.add(cb.isTrue(root.get("active")));
+
+            // Data permission
+            if(currentUser.getRole() == Role.SALES){
+                Join<Lead, User> ownerJoin = root.join("owner");
+                predicates.add(
+                        cb.equal(ownerJoin.get("id"), currentUser.getId())
+                );
+            } else if (currentUser.getRole() == Role.MANAGER){
+                Join<Lead, User> teamOwnerJoin = root.join("teamOwner");
+
+                predicates.add(
+                        cb.equal(teamOwnerJoin.get("id"), currentUser.getId())
+                );
+            } // ADMIN không cần filter
 
             // Customer name
             if(StringUtils.hasText(request.getCustomerName())){
