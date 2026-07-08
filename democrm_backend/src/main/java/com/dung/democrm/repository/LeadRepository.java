@@ -20,4 +20,6 @@ public interface LeadRepository extends BaseRepository<Lead, Long>, JpaSpecifica
     List<Lead> findByOwnerIdAndActiveTrue(Long ownerId);
     List<Lead> findByTeamOwnerIdAndActiveTrue(Long managerId);
     boolean existsByCustomerIdAndLeadStatusInAndActiveTrue(Long customerId, Collection<LeadStatus> statuses);
+
+    boolean existsByIdAndActiveTrue(Long id);
 }

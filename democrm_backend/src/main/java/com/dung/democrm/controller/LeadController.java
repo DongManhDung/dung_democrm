@@ -4,7 +4,9 @@ import com.dung.democrm.dto.request.LeadRequest;
 import com.dung.democrm.dto.request.LeadSearchRequest;
 import com.dung.democrm.dto.response.LeadDetailResponse;
 import com.dung.democrm.dto.response.LeadResponse;
+import com.dung.democrm.dto.response.LeadTimelineResponse;
 import com.dung.democrm.service.LeadService;
+import com.dung.democrm.service.LeadTimelineService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,11 +15,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/leads")
 @RequiredArgsConstructor
 public class LeadController {
     private final LeadService leadService;
+    private final LeadTimelineService leadTimelineService;
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
@@ -60,5 +65,11 @@ public class LeadController {
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public LeadDetailResponse getLeadDetail(@PathVariable("id") Long id){
         return leadService.getLeadDetail(id);
+    }
+
+    @GetMapping("/{id}/timeline")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','SALES')")
+    public List<LeadTimelineResponse> getLeadTimeline (@PathVariable("id") Long id){
+        return leadTimelineService.getLeadTimeline(id);
     }
 }

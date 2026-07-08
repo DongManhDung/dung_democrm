@@ -3,6 +3,7 @@ package com.dung.democrm.service.impl;
 import com.dung.democrm.common.constant.LeadConstants;
 import com.dung.democrm.common.enums.LeadStatus;
 import com.dung.democrm.common.enums.Role;
+import com.dung.democrm.common.enums.TimelineAction;
 import com.dung.democrm.common.enums.UserStatus;
 import com.dung.democrm.common.exception.BadRequestException;
 import com.dung.democrm.common.exception.ResourceNotFoundException;
@@ -18,10 +19,12 @@ import com.dung.democrm.repository.CustomerRepository;
 import com.dung.democrm.repository.LeadRepository;
 import com.dung.democrm.repository.UserRepository;
 import com.dung.democrm.service.LeadService;
+import com.dung.democrm.service.LeadTimelineService;
 import com.dung.democrm.user.specification.LeadSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -35,6 +38,7 @@ public class LeadServiceImpl implements LeadService {
     private final UserRepository userRepository;
     private final CustomerRepository customerRepository;
     private final LeadMapper leadMapper;
+    private final LeadTimelineService leadTimelineService;
 
     @Override
     public Page<LeadResponse> getAllLeads(Pageable pageable) {
@@ -79,7 +83,11 @@ public class LeadServiceImpl implements LeadService {
 
         lead.setTransferCount(0);
 
-        return leadMapper.toResponse(leadRepository.save(lead));
+        Lead savedLead = leadRepository.save(lead);
+
+        leadTimelineService.saveTimeLine(savedLead, TimelineAction.CREATED,"Lead created.",getCurrentUser());
+
+        return leadMapper.toResponse(savedLead);
     }
 
     @Override
@@ -104,7 +112,11 @@ public class LeadServiceImpl implements LeadService {
         lead.setPriority(request.getPriority());
         lead.setNote(request.getNote());
 
-        return leadMapper.toResponse(leadRepository.save(lead));
+        Lead updatedLead = leadRepository.save(lead);
+
+        leadTimelineService.saveTimeLine(updatedLead, TimelineAction.UPDATED, "Lead updated.", getCurrentUser());
+
+        return leadMapper.toResponse(updatedLead);
     }
 
     @Override
@@ -113,6 +125,7 @@ public class LeadServiceImpl implements LeadService {
         lead.setActive(false);
         lead.setDeletedAt(LocalDateTime.now());
         leadRepository.save(lead);
+        leadTimelineService.saveTimeLine(lead, TimelineAction.DELETED, "Lead deleted.", getCurrentUser());
     }
 
     @Override
@@ -144,5 +157,10 @@ public class LeadServiceImpl implements LeadService {
             throw new BadRequestException("Owner must be active.");
         }
         return owner;
+    }
+
+    private User getCurrentUser(){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found."));
     }
 }
