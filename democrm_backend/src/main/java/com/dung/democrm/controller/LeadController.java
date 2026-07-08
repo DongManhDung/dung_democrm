@@ -1,5 +1,6 @@
 package com.dung.democrm.controller;
 
+import com.dung.democrm.dto.request.LeadAssignRequest;
 import com.dung.democrm.dto.request.LeadRequest;
 import com.dung.democrm.dto.request.LeadSearchRequest;
 import com.dung.democrm.dto.response.LeadDetailResponse;
@@ -71,5 +72,14 @@ public class LeadController {
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','SALES')")
     public List<LeadTimelineResponse> getLeadTimeline (@PathVariable("id") Long id){
         return leadTimelineService.getLeadTimeline(id);
+    }
+
+    @PutMapping("/{id}/assign")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    public LeadResponse assignLead(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody LeadAssignRequest request
+            ){
+        return leadService.assignLead(id, request);
     }
 }

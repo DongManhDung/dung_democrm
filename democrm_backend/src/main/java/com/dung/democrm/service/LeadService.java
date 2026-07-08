@@ -1,5 +1,6 @@
 package com.dung.democrm.service;
 
+import com.dung.democrm.dto.request.LeadAssignRequest;
 import com.dung.democrm.dto.request.LeadRequest;
 import com.dung.democrm.dto.request.LeadSearchRequest;
 import com.dung.democrm.dto.response.LeadDetailResponse;
@@ -15,4 +16,5 @@ public interface LeadService {
     LeadResponse updateLead(Long id, LeadRequest request);
     void deleteLead(Long id);
     LeadDetailResponse getLeadDetail(Long id);
+    LeadResponse assignLead(Long id, LeadAssignRequest request);
 }

@@ -7,6 +7,7 @@ import com.dung.democrm.common.enums.TimelineAction;
 import com.dung.democrm.common.enums.UserStatus;
 import com.dung.democrm.common.exception.BadRequestException;
 import com.dung.democrm.common.exception.ResourceNotFoundException;
+import com.dung.democrm.dto.request.LeadAssignRequest;
 import com.dung.democrm.dto.request.LeadRequest;
 import com.dung.democrm.dto.request.LeadSearchRequest;
 import com.dung.democrm.dto.response.LeadDetailResponse;
@@ -133,6 +134,39 @@ public class LeadServiceImpl implements LeadService {
         Lead lead = leadRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lead not found."));
         return leadMapper.toDetailResponse(lead);
+    }
+
+    @Override
+    public LeadResponse assignLead(Long id, LeadAssignRequest request) {
+        Lead lead = getValidLead(id);
+
+        User owner = getValidOwner(request.getOwnerId());
+
+        if(lead.getOwner().getId().equals(request.getOwnerId())){
+            throw new BadRequestException("Lead is already assigned to this owner.");
+        }
+
+        lead.setOwner(owner);
+        lead.setTeamOwner(owner.getManager());
+
+        LocalDate assignedAt = LocalDate.now();
+        lead.setAssignedAt(assignedAt);
+        lead.setExpiredAt(assignedAt.plusDays(15));
+
+        Lead updatedLead = leadRepository.save(lead);
+
+        leadTimelineService.saveTimeLine(
+                updatedLead,
+                TimelineAction.ASSIGNED,
+                String.format(
+                        "Lead assigned to %s (%s).",
+                        owner.getFullName(),
+                        owner.getEmployeeCode()
+                ),
+                getCurrentUser()
+        );
+
+        return leadMapper.toResponse(updatedLead);
     }
 
     private Lead getValidLead(Long id){
