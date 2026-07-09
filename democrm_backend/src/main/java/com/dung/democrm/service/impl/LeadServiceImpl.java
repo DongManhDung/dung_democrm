@@ -143,6 +143,8 @@ public class LeadServiceImpl implements LeadService {
     public LeadResponse assignLead(Long id, LeadAssignRequest request) {
         Lead lead = getValidLead(id);
 
+        validateLeadNotExpired(lead);
+
         User owner = getValidOwner(request.getOwnerId());
 
         if(lead.getOwner().getId().equals(request.getOwnerId())){
@@ -175,6 +177,8 @@ public class LeadServiceImpl implements LeadService {
     @Override
     public LeadResponse transferLead(Long id, LeadAssignRequest request) {
         Lead lead = getValidLead(id);
+
+        validateLeadNotExpired(lead);
 
         User newOwner = getValidOwner(request.getOwnerId());
 
@@ -213,6 +217,8 @@ public class LeadServiceImpl implements LeadService {
     @Override
     public LeadResponse updateLeadStatus(Long id, UpdateLeadStatusRequest request) {
         Lead lead = getValidLead(id);
+
+        validateLeadNotExpired(lead);
 
         LeadStatus oldStatus = lead.getLeadStatus();
         LeadStatus newStatus = request.getStatus();
@@ -308,5 +314,15 @@ public class LeadServiceImpl implements LeadService {
     private User getCurrentUser(){
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found."));
+    }
+
+    private boolean isLeadExpired(Lead lead){
+        return lead.getExpiredAt() != null && lead.getExpiredAt().isBefore(LocalDate.now());
+    }
+
+    private void validateLeadNotExpired(Lead lead){
+        if (isLeadExpired(lead)){
+            throw new BadRequestException("Lead has expired. Please assign or transfer the lead before continuing.");
+        }
     }
 }
