@@ -2,6 +2,7 @@ package com.dung.democrm.controller;
 
 import com.dung.democrm.dto.request.ActivityRequest;
 import com.dung.democrm.dto.request.ActivitySearchRequest;
+import com.dung.democrm.dto.response.ActivityDetailResponse;
 import com.dung.democrm.dto.response.ActivityResponse;
 import com.dung.democrm.service.ActivityService;
 import jakarta.validation.Valid;
@@ -62,5 +63,11 @@ public class ActivityController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteActivity(@PathVariable("id") Long id){
         activityService.deleteActivity(id);
+    }
+
+    @GetMapping("/{id}/detail")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','SALES')")
+    public ActivityDetailResponse getActivityDetail(@PathVariable("id") Long id){
+        return activityService.getActivityDetail(id);
     }
 }

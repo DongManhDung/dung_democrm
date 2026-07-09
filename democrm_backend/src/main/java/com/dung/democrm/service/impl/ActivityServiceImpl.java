@@ -4,6 +4,7 @@ import com.dung.democrm.common.enums.ActivityStatus;
 import com.dung.democrm.common.exception.ResourceNotFoundException;
 import com.dung.democrm.dto.request.ActivityRequest;
 import com.dung.democrm.dto.request.ActivitySearchRequest;
+import com.dung.democrm.dto.response.ActivityDetailResponse;
 import com.dung.democrm.dto.response.ActivityResponse;
 import com.dung.democrm.entity.Activity;
 import com.dung.democrm.entity.Lead;
@@ -99,6 +100,11 @@ public class ActivityServiceImpl implements ActivityService {
         activity.setDeletedAt(LocalDateTime.now());
 
         activityRepository.save(activity);
+    }
+
+    @Override
+    public ActivityDetailResponse getActivityDetail(Long id) {
+        return activityMapper.toDetailResponse(getValidActivity(id));
     }
 
     // Helper
