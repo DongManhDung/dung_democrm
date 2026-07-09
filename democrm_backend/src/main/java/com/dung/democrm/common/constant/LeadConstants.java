@@ -13,6 +13,7 @@ public final class LeadConstants {
             LeadStatus.NEW,
             LeadStatus.CONTACTED,
             LeadStatus.QUALIFIED,
+            LeadStatus.DEMO,
             LeadStatus.PROPOSAL,
             LeadStatus.NEGOTIATING
     );

@@ -69,9 +69,7 @@ public class LeadServiceImpl implements LeadService {
 
         User owner = getValidOwner(request.getOwnerId());
 
-        if(leadRepository.existsByCustomerIdAndLeadStatusInAndActiveTrue(customer.getId(), LeadConstants.ACTIVE_LEAD_STATUSES)){
-            throw new BadRequestException("Customer already has an active lead.");
-        }
+        validateCustomerHasNoActiveLead(customer.getId());
 
         Lead lead = new Lead();
 
@@ -105,10 +103,8 @@ public class LeadServiceImpl implements LeadService {
 
         User owner = getValidOwner(request.getOwnerId());
 
-        if(!lead.getCustomer().getId().equals(customer.getId())
-                && leadRepository.existsByCustomerIdAndLeadStatusInAndActiveTrue(customer.getId(), LeadConstants.ACTIVE_LEAD_STATUSES)
-        ){
-            throw new BadRequestException("Customer already has an active lead");
+        if (!lead.getCustomer().getId().equals(customer.getId())){
+            validateCustomerHasNoActiveLead(customer.getId());
         }
 
         lead.setCustomer(customer);
@@ -323,6 +319,12 @@ public class LeadServiceImpl implements LeadService {
     private void validateLeadNotExpired(Lead lead){
         if (isLeadExpired(lead)){
             throw new BadRequestException("Lead has expired. Please assign or transfer the lead before continuing.");
+        }
+    }
+
+    private void validateCustomerHasNoActiveLead(Long customerId){
+        if(leadRepository.existsByCustomerIdAndLeadStatusInAndActiveTrue(customerId, LeadConstants.ACTIVE_LEAD_STATUSES)){
+            throw new BadRequestException("Customer already has an active lead.");
         }
     }
 }
