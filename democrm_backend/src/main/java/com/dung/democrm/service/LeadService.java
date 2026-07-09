@@ -6,6 +6,7 @@ import com.dung.democrm.dto.request.LeadSearchRequest;
 import com.dung.democrm.dto.request.UpdateLeadStatusRequest;
 import com.dung.democrm.dto.response.LeadDetailResponse;
 import com.dung.democrm.dto.response.LeadResponse;
+import com.dung.democrm.dto.response.LeadStatisticsResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -22,4 +23,5 @@ public interface LeadService {
     LeadResponse assignLead(Long id, LeadAssignRequest request);
     LeadResponse transferLead(Long id, LeadAssignRequest request);
     LeadResponse updateLeadStatus(Long id, UpdateLeadStatusRequest request);
+    LeadStatisticsResponse getLeadStatistics();
 }

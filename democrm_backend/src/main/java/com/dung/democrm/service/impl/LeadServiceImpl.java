@@ -1,10 +1,7 @@
 package com.dung.democrm.service.impl;
 
 import com.dung.democrm.common.constant.LeadConstants;
-import com.dung.democrm.common.enums.LeadStatus;
-import com.dung.democrm.common.enums.Role;
-import com.dung.democrm.common.enums.TimelineAction;
-import com.dung.democrm.common.enums.UserStatus;
+import com.dung.democrm.common.enums.*;
 import com.dung.democrm.common.exception.BadRequestException;
 import com.dung.democrm.common.exception.DuplicateLeadException;
 import com.dung.democrm.common.exception.ForbiddenException;
@@ -16,6 +13,7 @@ import com.dung.democrm.dto.request.UpdateLeadStatusRequest;
 import com.dung.democrm.dto.response.DuplicateLeadResponse;
 import com.dung.democrm.dto.response.LeadDetailResponse;
 import com.dung.democrm.dto.response.LeadResponse;
+import com.dung.democrm.dto.response.LeadStatisticsResponse;
 import com.dung.democrm.entity.Customer;
 import com.dung.democrm.entity.Lead;
 import com.dung.democrm.entity.User;
@@ -36,6 +34,8 @@ import java.awt.*;
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.EnumMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -265,6 +265,29 @@ public class LeadServiceImpl implements LeadService {
         return leadMapper.toResponse(updatedLead);
     }
 
+    @Override
+    public LeadStatisticsResponse getLeadStatistics() {
+        LocalDate today = LocalDate.now();
+
+        Long totalLeads = leadRepository.countByActiveTrue();
+
+        Long expiredLeads = leadRepository.countByExpiredAtBeforeAndActiveTrue(today);
+
+        Long expiringSoonLeads = leadRepository.countByExpiredAtBetweenAndActiveTrue(today, today.plusDays(3));
+
+        Map<LeadStatus, Long> leadStatusStatistics = buildLeadStatusStatistics();
+
+        Map<LeadSource, Long> leadSourceStatistics = buildLeadSourceStatistics();
+
+        return LeadStatisticsResponse.builder()
+                .totalLeads(totalLeads)
+                .leadStatusStatistics(leadStatusStatistics)
+                .leadSourceStatistics(leadSourceStatistics)
+                .expiringSoonLeads(expiringSoonLeads)
+                .expiredLeads(expiredLeads)
+                .build();
+    }
+
     private Lead getValidLead(Long id){
         return leadRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lead not found."));
@@ -343,5 +366,39 @@ public class LeadServiceImpl implements LeadService {
 
                     throw new DuplicateLeadException(duplicateLead);
                 });
+    }
+
+    private Map<LeadStatus, Long> buildLeadStatusStatistics(){
+        Map<LeadStatus, Long> statistics = new EnumMap<>(LeadStatus.class);
+
+        for(LeadStatus status : LeadStatus.values()){
+            statistics.put(status, 0L);
+        }
+
+        leadRepository.countLeadByStatus()
+                .forEach(result -> {
+                    LeadStatus status = (LeadStatus) result[0];
+                    Long count = (Long) result[1];
+                    statistics.put(status,count);
+                });
+
+        return statistics;
+    }
+
+    private Map<LeadSource, Long> buildLeadSourceStatistics(){
+        Map<LeadSource, Long> statistics = new EnumMap<>(LeadSource.class);
+
+        for (LeadSource source : LeadSource.values()){
+            statistics.put(source, 0L);
+        }
+
+        leadRepository.countLeadBySource()
+                .forEach(result -> {
+                    LeadSource source = (LeadSource) result[0];
+                    Long count = (Long) result[1];
+                    statistics.put(source, count);
+                });
+
+        return statistics;
     }
 }

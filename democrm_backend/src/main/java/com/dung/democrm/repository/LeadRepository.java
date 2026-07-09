@@ -7,6 +7,7 @@ import com.dung.democrm.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -23,4 +24,17 @@ public interface LeadRepository extends BaseRepository<Lead, Long>, JpaSpecifica
     boolean existsByIdAndActiveTrue(Long id);
 
     Optional<Lead> findFirstByCustomerIdAndLeadStatusInAndActiveTrue(Long customerId, Collection<LeadStatus> statuses);
+
+    // Statistics
+    long countByActiveTrue();
+
+    long countByExpiredAtBeforeAndActiveTrue(LocalDate today);
+
+    long countByExpiredAtBetweenAndActiveTrue(LocalDate from, LocalDate to);
+
+    @Query("SELECT l.leadStatus, COUNT(1) from Lead l WHERE l.active = true GROUP BY l.leadStatus")
+    List<Object[]> countLeadByStatus();
+
+    @Query("SELECT l.source, COUNT(1) from Lead l WHERE l.active = true GROUP BY l.source")
+    List<Object[]> countLeadBySource();
 }

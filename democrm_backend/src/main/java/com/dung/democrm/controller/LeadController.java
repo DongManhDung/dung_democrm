@@ -6,6 +6,7 @@ import com.dung.democrm.dto.request.LeadSearchRequest;
 import com.dung.democrm.dto.request.UpdateLeadStatusRequest;
 import com.dung.democrm.dto.response.LeadDetailResponse;
 import com.dung.democrm.dto.response.LeadResponse;
+import com.dung.democrm.dto.response.LeadStatisticsResponse;
 import com.dung.democrm.dto.response.LeadTimelineResponse;
 import com.dung.democrm.entity.Lead;
 import com.dung.democrm.service.LeadService;
@@ -102,5 +103,11 @@ public class LeadController {
             @Valid @RequestBody UpdateLeadStatusRequest request
     ){
         return leadService.updateLeadStatus(id, request);
+    }
+
+    @GetMapping("/statistics")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    public LeadStatisticsResponse getLeadStatistics(){
+        return leadService.getLeadStatistics();
     }
 }
