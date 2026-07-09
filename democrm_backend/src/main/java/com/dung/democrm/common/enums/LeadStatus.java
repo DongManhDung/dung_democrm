@@ -8,7 +8,5 @@ public enum LeadStatus {
     PROPOSAL,
     NEGOTIATING,
     WON,
-    LOST,
-    REASSIGNED, // Lead được chuyển cho Sales khác
-    ARCHIVED // Lead không có chút hy vọng gì nữa, lưu thống kê
+    LOST
 }

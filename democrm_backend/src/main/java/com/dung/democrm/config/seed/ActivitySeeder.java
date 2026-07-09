@@ -1,5 +1,6 @@
 package com.dung.democrm.config.seed;
 
+import com.dung.democrm.common.enums.ActivityStatus;
 import com.dung.democrm.common.enums.ActivityType;
 import com.dung.democrm.entity.Activity;
 import com.dung.democrm.entity.Lead;
@@ -36,10 +37,14 @@ public class ActivitySeeder {
                 Activity activity = new Activity();
 
                 activity.setLead(lead);
-                activity.setUser(lead.getOwner());
+                activity.setCreatedBy(lead.getOwner());
                 activity.setType(type);
-                activity.setNote(generateNote(type));
-                activity.setActivityDate(activityDate.plusDays(random.nextInt(3) + 1));
+                activity.setStatus(ActivityStatus.COMPLETED);
+                activity.setSubject(generateSubject(type));
+                activity.setDescription(generateDescription(type));
+                activity.setDueDate(activityDate.toLocalDate());
+                activity.setCompletedAt(activityDate);
+
                 activities.add(activity);
             }
         }
@@ -50,27 +55,35 @@ public class ActivitySeeder {
     private List<ActivityType> buildActivities(Lead lead){
         return switch (lead.getLeadStatus()){
             case NEW -> List.of(ActivityType.EMAIL, ActivityType.CALL);
-            case CONTACTED -> List.of(ActivityType.EMAIL, ActivityType.CALL, ActivityType.FOLLOW_UP);
-            case QUALIFIED -> List.of(ActivityType.CALL, ActivityType.MEETING, ActivityType.FOLLOW_UP);
-            case DEMO -> List.of(ActivityType.CALL, ActivityType.MEETING, ActivityType.DEMO);
-            case PROPOSAL -> List.of(ActivityType.CALL, ActivityType.DEMO, ActivityType.QUOTATION);
-            case NEGOTIATING -> List.of(ActivityType.DEMO, ActivityType.FOLLOW_UP, ActivityType.MEETING);
-            case WON -> List.of(ActivityType.CALL, ActivityType.DEMO, ActivityType.FOLLOW_UP);
-            case LOST -> List.of(ActivityType.CALL, ActivityType.FOLLOW_UP);
-            case REASSIGNED -> List.of(ActivityType.CALL, ActivityType.EMAIL, ActivityType.FOLLOW_UP);
-            case ARCHIVED -> List.of(ActivityType.CALL, ActivityType.QUOTATION);
+            case CONTACTED -> List.of(ActivityType.CALL, ActivityType.FOLLOW_UP);
+            case QUALIFIED -> List.of(ActivityType.MEETING, ActivityType.FOLLOW_UP);
+            case DEMO -> List.of(ActivityType.DEMO, ActivityType.FOLLOW_UP);
+            case PROPOSAL -> List.of(ActivityType.EMAIL, ActivityType.FOLLOW_UP);
+            case NEGOTIATING -> List.of(ActivityType.CALL, ActivityType.MEETING);
+            case WON -> List.of(ActivityType.NOTE);
+            case LOST -> List.of(ActivityType.NOTE);
         };
     }
 
-    private String generateNote(ActivityType type){
+    private String generateSubject(ActivityType type){
         return switch (type){
             case CALL -> "Called customer to discuss requirements.";
             case EMAIL -> "Sent follow-up email.";
             case MEETING -> "Meeting with customer.";
             case DEMO -> "Product demo completed.";
-            case QUOTATION -> "Sent quotation.";
             case FOLLOW_UP -> "Follow-up after quotation.";
-            default -> "General customer interaction.";
+            case NOTE -> "Sales note.";
+        };
+    }
+
+    private String generateDescription(ActivityType type){
+        return switch (type){
+            case CALL -> "Discuss customer requirements.";
+            case EMAIL -> "Send product information.";
+            case MEETING -> "Meet customer to clarify needs.";
+            case DEMO -> "Demonstrate product features.";
+            case FOLLOW_UP -> "Follow up after previous interaction.";
+            case NOTE -> "General sales note.";
         };
     }
 

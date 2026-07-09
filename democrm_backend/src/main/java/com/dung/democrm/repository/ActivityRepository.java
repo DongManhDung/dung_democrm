@@ -8,5 +8,4 @@ import java.util.List;
 
 @Repository
 public interface ActivityRepository extends BaseRepository<Activity, Long> {
-    List<Activity> findByLeadOrderByActivityDateDesc(Lead lead);
 }
