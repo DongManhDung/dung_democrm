@@ -11,6 +11,7 @@ import com.dung.democrm.common.exception.ResourceNotFoundException;
 import com.dung.democrm.dto.request.LeadAssignRequest;
 import com.dung.democrm.dto.request.LeadRequest;
 import com.dung.democrm.dto.request.LeadSearchRequest;
+import com.dung.democrm.dto.request.UpdateLeadStatusRequest;
 import com.dung.democrm.dto.response.LeadDetailResponse;
 import com.dung.democrm.dto.response.LeadResponse;
 import com.dung.democrm.entity.Customer;
@@ -206,6 +207,57 @@ public class LeadServiceImpl implements LeadService {
                 ),
                 getCurrentUser()
         );
+        return leadMapper.toResponse(updatedLead);
+    }
+
+    @Override
+    public LeadResponse updateLeadStatus(Long id, UpdateLeadStatusRequest request) {
+        Lead lead = getValidLead(id);
+
+        LeadStatus oldStatus = lead.getLeadStatus();
+        LeadStatus newStatus = request.getStatus();
+
+        if(oldStatus == newStatus){
+            throw new BadRequestException("Lead is already in this status");
+        }
+
+        if(newStatus == LeadStatus.LOST){
+            if (request.getLostReason() == null){
+                throw new BadRequestException("Lost reason is required when lead status is LOST.");
+            }
+            lead.setLostReason(request.getLostReason());
+        } else {
+            lead.setLostReason(null);
+        }
+
+        lead.setLeadStatus(newStatus);
+
+        Lead updatedLead = leadRepository.save(lead);
+
+        String description;
+
+        if(newStatus == LeadStatus.LOST){
+            description = String.format(
+                    "Lead status changed from %s to %s. Reason: %s.",
+                    oldStatus,
+                    newStatus,
+                    request.getLostReason()
+            );
+        } else {
+            description = String.format(
+                    "Lead status changed from %s to %s",
+                    oldStatus,
+                    newStatus
+            );
+        }
+
+        leadTimelineService.saveTimeLine(
+                updatedLead,
+                TimelineAction.STATUS_CHANGED,
+                description,
+                getCurrentUser()
+        );
+
         return leadMapper.toResponse(updatedLead);
     }
 

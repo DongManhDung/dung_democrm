@@ -3,9 +3,11 @@ package com.dung.democrm.controller;
 import com.dung.democrm.dto.request.LeadAssignRequest;
 import com.dung.democrm.dto.request.LeadRequest;
 import com.dung.democrm.dto.request.LeadSearchRequest;
+import com.dung.democrm.dto.request.UpdateLeadStatusRequest;
 import com.dung.democrm.dto.response.LeadDetailResponse;
 import com.dung.democrm.dto.response.LeadResponse;
 import com.dung.democrm.dto.response.LeadTimelineResponse;
+import com.dung.democrm.entity.Lead;
 import com.dung.democrm.service.LeadService;
 import com.dung.democrm.service.LeadTimelineService;
 import jakarta.validation.Valid;
@@ -91,5 +93,14 @@ public class LeadController {
             @Valid @RequestBody LeadAssignRequest request
     ){
         return leadService.transferLead(id, request);
+    }
+
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','SALES')")
+    public LeadResponse updateLeadStatus(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody UpdateLeadStatusRequest request
+    ){
+        return leadService.updateLeadStatus(id, request);
     }
 }

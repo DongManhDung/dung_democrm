@@ -3,6 +3,7 @@ package com.dung.democrm.service;
 import com.dung.democrm.dto.request.LeadAssignRequest;
 import com.dung.democrm.dto.request.LeadRequest;
 import com.dung.democrm.dto.request.LeadSearchRequest;
+import com.dung.democrm.dto.request.UpdateLeadStatusRequest;
 import com.dung.democrm.dto.response.LeadDetailResponse;
 import com.dung.democrm.dto.response.LeadResponse;
 import org.springframework.data.domain.Page;
@@ -20,4 +21,5 @@ public interface LeadService {
     LeadDetailResponse getLeadDetail(Long id) throws AccessDeniedException;
     LeadResponse assignLead(Long id, LeadAssignRequest request);
     LeadResponse transferLead(Long id, LeadAssignRequest request);
+    LeadResponse updateLeadStatus(Long id, UpdateLeadStatusRequest request);
 }
