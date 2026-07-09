@@ -6,12 +6,14 @@ import com.dung.democrm.common.enums.Role;
 import com.dung.democrm.common.enums.TimelineAction;
 import com.dung.democrm.common.enums.UserStatus;
 import com.dung.democrm.common.exception.BadRequestException;
+import com.dung.democrm.common.exception.DuplicateLeadException;
 import com.dung.democrm.common.exception.ForbiddenException;
 import com.dung.democrm.common.exception.ResourceNotFoundException;
 import com.dung.democrm.dto.request.LeadAssignRequest;
 import com.dung.democrm.dto.request.LeadRequest;
 import com.dung.democrm.dto.request.LeadSearchRequest;
 import com.dung.democrm.dto.request.UpdateLeadStatusRequest;
+import com.dung.democrm.dto.response.DuplicateLeadResponse;
 import com.dung.democrm.dto.response.LeadDetailResponse;
 import com.dung.democrm.dto.response.LeadResponse;
 import com.dung.democrm.entity.Customer;
@@ -323,8 +325,23 @@ public class LeadServiceImpl implements LeadService {
     }
 
     private void validateCustomerHasNoActiveLead(Long customerId){
-        if(leadRepository.existsByCustomerIdAndLeadStatusInAndActiveTrue(customerId, LeadConstants.ACTIVE_LEAD_STATUSES)){
-            throw new BadRequestException("Customer already has an active lead.");
-        }
+        leadRepository.findFirstByCustomerIdAndLeadStatusInAndActiveTrue(customerId, LeadConstants.ACTIVE_LEAD_STATUSES)
+                .ifPresent(existingLead -> {
+                    DuplicateLeadResponse duplicateLead = DuplicateLeadResponse.builder()
+                            .leadId(existingLead.getId())
+                            .customerId(existingLead.getCustomer().getId())
+                            .customerName(existingLead.getCustomer().getName())
+                            .ownerId(existingLead.getOwner().getId())
+                            .ownerName(existingLead.getOwner().getFullName())
+                            .ownerEmployeeCode(existingLead.getOwner().getEmployeeCode())
+                            .status(existingLead.getLeadStatus())
+                            .priority(existingLead.getPriority())
+                            .assignedAt(existingLead.getAssignedAt())
+                            .expiredAt(existingLead.getExpiredAt())
+                            .transferCount(existingLead.getTransferCount())
+                            .build();
+
+                    throw new DuplicateLeadException(duplicateLead);
+                });
     }
 }

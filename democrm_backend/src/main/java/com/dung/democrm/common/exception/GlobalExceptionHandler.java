@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -72,5 +73,23 @@ public class GlobalExceptionHandler {
             Exception ex, HttpServletRequest request
     ){
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(DuplicateLeadException.class)
+    public ResponseEntity<Object> handleDuplicateLead(
+            DuplicateLeadException ex,
+            HttpServletRequest request
+    ){
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(
+                        Map.of(
+                                "timestamp", LocalDateTime.now(),
+                                "status", HttpStatus.CONFLICT.value(),
+                                "error", HttpStatus.CONFLICT.getReasonPhrase(),
+                                "message", ex.getMessage(),
+                                "path", request.getRequestURI(),
+                                "duplicateLead", ex.getDuplicateLead()
+                        )
+                );
     }
 }
