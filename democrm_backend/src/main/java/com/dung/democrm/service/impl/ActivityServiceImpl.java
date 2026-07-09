@@ -3,6 +3,7 @@ package com.dung.democrm.service.impl;
 import com.dung.democrm.common.enums.ActivityStatus;
 import com.dung.democrm.common.exception.ResourceNotFoundException;
 import com.dung.democrm.dto.request.ActivityRequest;
+import com.dung.democrm.dto.request.ActivitySearchRequest;
 import com.dung.democrm.dto.response.ActivityResponse;
 import com.dung.democrm.entity.Activity;
 import com.dung.democrm.entity.Lead;
@@ -12,7 +13,10 @@ import com.dung.democrm.repository.ActivityRepository;
 import com.dung.democrm.repository.LeadRepository;
 import com.dung.democrm.repository.UserRepository;
 import com.dung.democrm.service.ActivityService;
+import com.dung.democrm.user.specification.ActivitySpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -30,9 +34,14 @@ public class ActivityServiceImpl implements ActivityService {
     private final ActivityMapper activityMapper;
 
     @Override
-    public List<ActivityResponse> getAllActivities() {
-        return activityRepository.findAllByActiveTrue()
-                .stream().map(activityMapper::toResponse).toList();
+    public Page<ActivityResponse> getAllActivities(Pageable pageable) {
+        return searchActivities(new ActivitySearchRequest(), pageable);
+    }
+
+    @Override
+    public Page<ActivityResponse> searchActivities(ActivitySearchRequest request, Pageable pageable) {
+        return activityRepository.findAll(ActivitySpecification.search(request), pageable)
+                .map(activityMapper::toResponse);
     }
 
     @Override

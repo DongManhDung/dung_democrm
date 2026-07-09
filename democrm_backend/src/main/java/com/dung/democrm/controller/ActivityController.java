@@ -1,10 +1,13 @@
 package com.dung.democrm.controller;
 
 import com.dung.democrm.dto.request.ActivityRequest;
+import com.dung.democrm.dto.request.ActivitySearchRequest;
 import com.dung.democrm.dto.response.ActivityResponse;
 import com.dung.democrm.service.ActivityService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +22,17 @@ public class ActivityController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','SALES')")
-    public List<ActivityResponse> getAllActivities(){
-        return activityService.getAllActivities();
+    public Page<ActivityResponse> getAllActivities(Pageable pageable){
+        return activityService.getAllActivities(pageable);
+    }
+
+    @GetMapping("/search")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','SALES')")
+    public Page<ActivityResponse> searchActivities(
+            @ModelAttribute ActivitySearchRequest request,
+            Pageable pageable
+            ){
+        return activityService.searchActivities(request, pageable);
     }
 
     @GetMapping("/{id}")
