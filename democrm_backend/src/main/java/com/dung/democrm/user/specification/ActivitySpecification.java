@@ -19,12 +19,44 @@ public final class ActivitySpecification {
 
     }
 
-    public static Specification<Activity> search(ActivitySearchRequest request){
+    public static Specification<Activity> search(ActivitySearchRequest request, User currentUser){
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             // Active
             predicates.add(cb.isTrue(root.get("active")));
+
+            // Permission
+            switch (currentUser.getRole()){
+                case SALES -> {
+                    Join<Activity, Lead> leadJoin = root.join("lead");
+
+                    predicates.add(
+                            cb.equal(
+                                    leadJoin.get("owner").get("id"),
+                                    currentUser.getId()
+                            )
+                    );
+                }
+
+                case MANAGER -> {
+                    Join<Activity, Lead> leadJoin = root.join("lead");
+
+                    predicates.add(
+                            cb.equal(
+                                    leadJoin.get("teamOwner").get("id"),
+                                    currentUser.getId()
+                            )
+                    );
+                }
+
+                case ADMIN -> {
+                    // None
+                }
+
+                default -> throw new IllegalStateException("Unexpected role: " + currentUser.getRole());
+
+            }
 
             // Lead
             if (request.getLeadId() != null) {

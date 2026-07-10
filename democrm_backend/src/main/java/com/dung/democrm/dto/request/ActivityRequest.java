@@ -1,5 +1,6 @@
 package com.dung.democrm.dto.request;
 
+import com.dung.democrm.common.enums.ActivityStatus;
 import com.dung.democrm.common.enums.ActivityType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -26,6 +27,9 @@ public class ActivityRequest {
     @NotBlank(message = "Subject is required.")
     @Size(max = 150)
     private String subject;
+
+    @NotNull(message = "Activity status is required.")
+    private ActivityStatus status;
 
     @Size(max = 1000)
     private String description;

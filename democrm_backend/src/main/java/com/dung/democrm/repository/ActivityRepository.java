@@ -11,7 +11,7 @@ import java.util.Optional;
 @Repository
 public interface ActivityRepository extends BaseRepository<Activity, Long>, JpaSpecificationExecutor<Activity> {
     Optional<Activity> findByIdAndActiveTrue(Long id);
-    List<Activity> findAllByActiveTrue();
-
+    Optional<Activity> findByIdAndLeadOwnerIdAndActiveTrue(Long id, Long ownerId);
+    Optional<Activity> findByIdAndLeadTeamOwnerIdAndActiveTrue(Long id, Long managerId);
 }
 

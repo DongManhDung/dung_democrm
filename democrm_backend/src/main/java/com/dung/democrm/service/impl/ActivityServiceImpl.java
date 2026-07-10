@@ -1,6 +1,7 @@
 package com.dung.democrm.service.impl;
 
 import com.dung.democrm.common.enums.ActivityStatus;
+import com.dung.democrm.common.exception.ForbiddenException;
 import com.dung.democrm.common.exception.ResourceNotFoundException;
 import com.dung.democrm.dto.request.ActivityRequest;
 import com.dung.democrm.dto.request.ActivitySearchRequest;
@@ -41,13 +42,13 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     public Page<ActivityResponse> searchActivities(ActivitySearchRequest request, Pageable pageable) {
-        return activityRepository.findAll(ActivitySpecification.search(request), pageable)
+        return activityRepository.findAll(ActivitySpecification.search(request, getCurrentUser()), pageable)
                 .map(activityMapper::toResponse);
     }
 
     @Override
     public ActivityResponse getActivityById(Long id) {
-        return activityMapper.toResponse(getValidActivity(id));
+        return activityMapper.toResponse(getAccessibleActivityForRead(id));
     }
 
     @Override
@@ -62,7 +63,7 @@ public class ActivityServiceImpl implements ActivityService {
         activity.setCreatedBy(currentUser);
 
         activity.setType(request.getType());
-        activity.setStatus(ActivityStatus.PENDING);
+        activity.setStatus(request.getStatus());
         activity.setSubject(request.getSubject());
         activity.setDescription(request.getDescription());
 
@@ -83,6 +84,7 @@ public class ActivityServiceImpl implements ActivityService {
         activity.setLead(lead);
 
         activity.setType(request.getType());
+        activity.setStatus(request.getStatus());
 
         activity.setSubject(request.getSubject());
         activity.setDescription(request.getDescription());
@@ -104,7 +106,7 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     public ActivityDetailResponse getActivityDetail(Long id) {
-        return activityMapper.toDetailResponse(getValidActivity(id));
+        return activityMapper.toDetailResponse(getAccessibleActivityForRead(id));
     }
 
     // Helper
@@ -123,5 +125,21 @@ public class ActivityServiceImpl implements ActivityService {
 
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+    }
+
+    private Activity getAccessibleActivityForRead(Long id){
+        User currentUser = getCurrentUser();
+
+        return switch (currentUser.getRole()){
+            case ADMIN -> getValidActivity(id);
+
+            case MANAGER -> activityRepository.findByIdAndLeadTeamOwnerIdAndActiveTrue(id, currentUser.getId())
+                    .orElseThrow(() -> new ForbiddenException("You do not have permission to access this activity."));
+
+            case SALES -> activityRepository.findByIdAndLeadOwnerIdAndActiveTrue(id, currentUser.getId())
+                    .orElseThrow(() -> new ForbiddenException("You do not have permission to access this activity."));
+
+            default -> throw new ForbiddenException("Access Denied.");
+        };
     }
 }
