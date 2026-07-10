@@ -4,6 +4,7 @@ import com.dung.democrm.dto.request.ActivityRequest;
 import com.dung.democrm.dto.request.ActivitySearchRequest;
 import com.dung.democrm.dto.response.ActivityDetailResponse;
 import com.dung.democrm.dto.response.ActivityResponse;
+import com.dung.democrm.dto.response.ActivityStatisticsResponse;
 import com.dung.democrm.dto.response.ActivityTimelineResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,4 +25,7 @@ public interface ActivityService {
     Page<ActivityTimelineResponse> getLeadTimeline(Long leadId, Pageable pageable) throws AccessDeniedException;
     Page<ActivityTimelineResponse> getCustomerTimeline(Long customerId, Pageable pageable) throws AccessDeniedException;
     Page<ActivityTimelineResponse> getSalesTimeline(Long salesId, Pageable pageable);
+
+    // Statistics
+    ActivityStatisticsResponse getActivityStatistics();
 }

@@ -4,6 +4,7 @@ import com.dung.democrm.dto.request.ActivityRequest;
 import com.dung.democrm.dto.request.ActivitySearchRequest;
 import com.dung.democrm.dto.response.ActivityDetailResponse;
 import com.dung.democrm.dto.response.ActivityResponse;
+import com.dung.democrm.dto.response.ActivityStatisticsResponse;
 import com.dung.democrm.dto.response.ActivityTimelineResponse;
 import com.dung.democrm.service.ActivityService;
 import jakarta.validation.Valid;
@@ -89,5 +90,11 @@ public class ActivityController {
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','SALES')")
     public Page<ActivityTimelineResponse> getSalesTimeline(@PathVariable("salesId") Long salesId, Pageable pageable){
         return activityService.getSalesTimeline(salesId, pageable);
+    }
+
+    @GetMapping("/statistics")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    public ActivityStatisticsResponse getActivityStatistics(){
+        return activityService.getActivityStatistics();
     }
 }

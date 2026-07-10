@@ -1,5 +1,7 @@
 package com.dung.democrm.service.impl;
 
+import com.dung.democrm.common.enums.ActivityStatus;
+import com.dung.democrm.common.enums.ActivityType;
 import com.dung.democrm.common.enums.Role;
 import com.dung.democrm.common.exception.ForbiddenException;
 import com.dung.democrm.common.exception.ResourceNotFoundException;
@@ -7,6 +9,7 @@ import com.dung.democrm.dto.request.ActivityRequest;
 import com.dung.democrm.dto.request.ActivitySearchRequest;
 import com.dung.democrm.dto.response.ActivityDetailResponse;
 import com.dung.democrm.dto.response.ActivityResponse;
+import com.dung.democrm.dto.response.ActivityStatisticsResponse;
 import com.dung.democrm.dto.response.ActivityTimelineResponse;
 import com.dung.democrm.entity.Activity;
 import com.dung.democrm.entity.Lead;
@@ -25,7 +28,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -135,6 +142,20 @@ public class ActivityServiceImpl implements ActivityService {
                 .map(activityMapper::toTimelineResponse);
     }
 
+    @Override
+    public ActivityStatisticsResponse getActivityStatistics() {
+        Map<ActivityType, Long> activitiesByType = toMap(activityRepository.countByType());
+        Map<ActivityStatus, Long> activitiesByStatus = toMap(activityRepository.countByStatus());
+
+        return ActivityStatisticsResponse.builder()
+                .totalActivities(activityRepository.countByActiveTrue())
+                .activitiesByType(activitiesByType)
+                .activitiesByStatus(activitiesByStatus)
+                .overdueActivities(activityRepository.countByActiveTrueAndStatusAndDueDateBefore(ActivityStatus.PENDING, LocalDate.now()))
+                .completedActivities(activityRepository.countByActiveTrueAndStatus(ActivityStatus.COMPLETED))
+                .build();
+    }
+
     // Helper
     private Activity getValidActivity(Long id){
         return activityRepository.findByIdAndActiveTrue(id)
@@ -223,5 +244,15 @@ public class ActivityServiceImpl implements ActivityService {
                 throw new ForbiddenException("You do not have permission.");
         }
 
+    }
+
+    private <T> Map<T, Long> toMap(List<Object[]> rows){
+        return rows.stream()
+                .collect(
+                  Collectors.toMap(
+                          row -> (T) row[0],
+                          row -> (Long) row[1]
+                  )
+                );
     }
 }
