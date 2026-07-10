@@ -2,6 +2,7 @@ package com.dung.democrm.mapper;
 
 import com.dung.democrm.dto.response.ActivityDetailResponse;
 import com.dung.democrm.dto.response.ActivityResponse;
+import com.dung.democrm.dto.response.ActivityTimelineResponse;
 import com.dung.democrm.entity.Activity;
 import org.springframework.stereotype.Component;
 
@@ -61,6 +62,34 @@ public class ActivityMapper {
                 // Log
                 .createdAt(activity.getCreatedAt())
                 .updatedAt(activity.getUpdatedAt())
+                .build();
+    }
+
+    public ActivityTimelineResponse toTimelineResponse(Activity activity){
+        return ActivityTimelineResponse.builder()
+                // Activity
+                .id(activity.getId())
+                .type(activity.getType())
+                .status(activity.getStatus())
+                .subject(activity.getSubject())
+
+                // Lead
+                .leadId(activity.getLead().getId())
+
+                // Customer
+                .customerId(activity.getLead().getCustomer().getId())
+                .customerName(activity.getLead().getCustomer().getName())
+
+                // Sales
+                .createdById(activity.getCreatedBy().getId())
+                .createdByName(activity.getCreatedBy().getFullName())
+
+                // Schedule
+                .dueDate(activity.getDueDate())
+                .completeAt(activity.getCompletedAt())
+
+                // Timeline
+                .createdAt(activity.getCreatedAt())
                 .build();
     }
 }

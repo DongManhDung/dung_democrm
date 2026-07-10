@@ -4,6 +4,7 @@ import com.dung.democrm.dto.request.ActivityRequest;
 import com.dung.democrm.dto.request.ActivitySearchRequest;
 import com.dung.democrm.dto.response.ActivityDetailResponse;
 import com.dung.democrm.dto.response.ActivityResponse;
+import com.dung.democrm.dto.response.ActivityTimelineResponse;
 import com.dung.democrm.service.ActivityService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -69,5 +70,23 @@ public class ActivityController {
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','SALES')")
     public ActivityDetailResponse getActivityDetail(@PathVariable("id") Long id){
         return activityService.getActivityDetail(id);
+    }
+
+    @GetMapping("/timeline/lead/{leadId}")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','SALES')")
+    public Page<ActivityTimelineResponse> getLeadTimeline(@PathVariable("leadId") Long leadId, Pageable pageable){
+        return activityService.getLeadTimeline(leadId, pageable);
+    }
+
+    @GetMapping("/timeline/customer/{customerId}")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','SALES')")
+    public Page<ActivityTimelineResponse> getCustomerTimeline(@PathVariable("customerId") Long customerId, Pageable pageable){
+        return activityService.getCustomerTimeline(customerId, pageable);
+    }
+
+    @GetMapping("/timeline/sales/{salesId}")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','SALES')")
+    public Page<ActivityTimelineResponse> getSalesTimeline(@PathVariable("salesId") Long salesId, Pageable pageable){
+        return activityService.getSalesTimeline(salesId, pageable);
     }
 }

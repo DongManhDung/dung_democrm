@@ -5,8 +5,10 @@ import com.dung.democrm.dto.request.ActivitySearchRequest;
 import com.dung.democrm.entity.Activity;
 import com.dung.democrm.entity.Lead;
 import com.dung.democrm.entity.User;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 
@@ -27,36 +29,7 @@ public final class ActivitySpecification {
             predicates.add(cb.isTrue(root.get("active")));
 
             // Permission
-            switch (currentUser.getRole()){
-                case SALES -> {
-                    Join<Activity, Lead> leadJoin = root.join("lead");
-
-                    predicates.add(
-                            cb.equal(
-                                    leadJoin.get("owner").get("id"),
-                                    currentUser.getId()
-                            )
-                    );
-                }
-
-                case MANAGER -> {
-                    Join<Activity, Lead> leadJoin = root.join("lead");
-
-                    predicates.add(
-                            cb.equal(
-                                    leadJoin.get("teamOwner").get("id"),
-                                    currentUser.getId()
-                            )
-                    );
-                }
-
-                case ADMIN -> {
-                    // None
-                }
-
-                default -> throw new IllegalStateException("Unexpected role: " + currentUser.getRole());
-
-            }
+            applyPermission(root, cb, predicates,currentUser);
 
             // Lead
             if (request.getLeadId() != null) {
@@ -117,6 +90,80 @@ public final class ActivitySpecification {
             }
             return cb.and(predicates.toArray(new Predicate[0]));
         };
+    }
+
+    // Timeline theo Lead
+    public static Specification<Activity> timelineByLead(Long leadId, User currentUser){
+        return (root, query, cb) -> {
+            query.orderBy(cb.desc(root.get("createdAt")));
+
+            List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(cb.isTrue(root.get("active")));
+
+            predicates.add(cb.equal(root.get("lead").get("id"), leadId));
+
+            applyPermission(root, cb, predicates, currentUser);
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    // Timeline theo customer
+    public static Specification<Activity> timeLineByCustomer(Long customerId, User currentUser){
+        return  (root, query, cb) -> {
+            query.orderBy(cb.desc(root.get("createdAt")));
+
+            List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(cb.isTrue(root.get("active")));
+
+            predicates.add(
+                    cb.equal(root.get("lead").get("customer").get("id"), customerId)
+            );
+
+            applyPermission(root, cb, predicates, currentUser);
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    // Timelines theo sales
+    public static Specification<Activity> timeLineBySales(Long salesId, User currentUser){
+        return (root, query, cb) -> {
+            query.orderBy(cb.desc(root.get("createdAt")));
+
+            List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(cb.isTrue(root.get("active")));
+
+            predicates.add(
+                    cb.equal(
+                            root.get("createdBy").get("id"),
+                            salesId
+                    )
+            );
+
+            applyPermission(root, cb, predicates, currentUser);
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+
+    // Helper
+    private static void applyPermission(Root<Activity> root, CriteriaBuilder cb, List<Predicate> predicates, User currentUser){
+        switch (currentUser.getRole()){
+            case SALES -> predicates.add(cb.equal(root.get("lead").get("owner").get("id"), currentUser.getId()));
+
+            case MANAGER -> predicates.add(cb.equal(root.get("lead").get("teamOwner").get("id"), currentUser.getId()));
+
+            case ADMIN ->  {
+
+            }
+
+            default -> throw new IllegalStateException("Unexpected role.");
+        }
     }
 
 }

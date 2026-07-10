@@ -4,10 +4,10 @@ import com.dung.democrm.dto.request.ActivityRequest;
 import com.dung.democrm.dto.request.ActivitySearchRequest;
 import com.dung.democrm.dto.response.ActivityDetailResponse;
 import com.dung.democrm.dto.response.ActivityResponse;
+import com.dung.democrm.dto.response.ActivityTimelineResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 
 public interface ActivityService {
     Page<ActivityResponse> getAllActivities(Pageable pageable);
@@ -17,4 +17,9 @@ public interface ActivityService {
     ActivityResponse updateActivity(Long id, ActivityRequest request);
     void deleteActivity(Long id);
     ActivityDetailResponse getActivityDetail(Long id);
+
+    // Timeline
+    Page<ActivityTimelineResponse> getLeadTimeline(Long leadId, Pageable pageable);
+    Page<ActivityTimelineResponse> getCustomerTimeline(Long customerId, Pageable pageable);
+    Page<ActivityTimelineResponse> getSalesTimeline(Long salesId, Pageable pageable);
 }

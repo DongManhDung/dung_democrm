@@ -1,17 +1,18 @@
 package com.dung.democrm.service.impl;
 
-import com.dung.democrm.common.enums.ActivityStatus;
 import com.dung.democrm.common.exception.ForbiddenException;
 import com.dung.democrm.common.exception.ResourceNotFoundException;
 import com.dung.democrm.dto.request.ActivityRequest;
 import com.dung.democrm.dto.request.ActivitySearchRequest;
 import com.dung.democrm.dto.response.ActivityDetailResponse;
 import com.dung.democrm.dto.response.ActivityResponse;
+import com.dung.democrm.dto.response.ActivityTimelineResponse;
 import com.dung.democrm.entity.Activity;
 import com.dung.democrm.entity.Lead;
 import com.dung.democrm.entity.User;
 import com.dung.democrm.mapper.ActivityMapper;
 import com.dung.democrm.repository.ActivityRepository;
+import com.dung.democrm.repository.CustomerRepository;
 import com.dung.democrm.repository.LeadRepository;
 import com.dung.democrm.repository.UserRepository;
 import com.dung.democrm.service.ActivityService;
@@ -23,7 +24,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +31,7 @@ public class ActivityServiceImpl implements ActivityService {
 
     private final ActivityRepository activityRepository;
     private final LeadRepository leadRepository;
+    private final CustomerRepository customerRepository;
     private final UserRepository userRepository;
 
     private final ActivityMapper activityMapper;
@@ -109,6 +110,27 @@ public class ActivityServiceImpl implements ActivityService {
         return activityMapper.toDetailResponse(getAccessibleActivityForRead(id));
     }
 
+    @Override
+    public Page<ActivityTimelineResponse> getLeadTimeline(Long leadId, Pageable pageable) {
+        getValidLead(leadId);
+        return activityRepository.findAll(ActivitySpecification.timelineByLead(leadId, getCurrentUser()), pageable)
+                .map(activityMapper::toTimelineResponse);
+    }
+
+    @Override
+    public Page<ActivityTimelineResponse> getCustomerTimeline(Long customerId, Pageable pageable) {
+        getValidCustomer(customerId);
+        return activityRepository.findAll(ActivitySpecification.timeLineByCustomer(customerId, getCurrentUser()), pageable)
+                .map(activityMapper::toTimelineResponse);
+    }
+
+    @Override
+    public Page<ActivityTimelineResponse> getSalesTimeline(Long salesId, Pageable pageable) {
+        getValidUser(salesId);
+        return activityRepository.findAll(ActivitySpecification.timeLineBySales(salesId, getCurrentUser()), pageable)
+                .map(activityMapper::toTimelineResponse);
+    }
+
     // Helper
     private Activity getValidActivity(Long id){
         return activityRepository.findByIdAndActiveTrue(id)
@@ -141,5 +163,15 @@ public class ActivityServiceImpl implements ActivityService {
 
             default -> throw new ForbiddenException("Access Denied.");
         };
+    }
+
+    private void getValidCustomer(Long id){
+        customerRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found."));
+    }
+
+    private void getValidUser(Long id){
+        userRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
     }
 }
