@@ -8,5 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface OpportunityRepository extends BaseRepository<Opportunity, Long> {
-    Optional<Opportunity> findByLead(Lead lead);
+    Optional<Opportunity> findByLeadId(Long leadId);
+    boolean existsByLeadId(Long leadId);
 }

@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -24,7 +26,7 @@ public class OpportunitySeeder {
     private final Random random = new Random();
 
     public void seed(){
-        if(leadRepository.count() > 0) return;
+        if(opportunityRepository.count() > 0) return;
 
         List<Opportunity> opportunities = new ArrayList<>();
 
@@ -45,6 +47,16 @@ public class OpportunitySeeder {
 
             opportunity.setStatus(status);
 
+            opportunity.setExpectedCloseDate(LocalDate.now().plusDays(random.nextInt(30) + 15));
+
+            if (status == OpportunityStatus.WON || status == OpportunityStatus.LOST){
+                opportunity.setClosedAt(LocalDateTime.now().minusDays(random.nextInt(10)));
+            }
+
+            if (status == OpportunityStatus.LOST){
+                opportunity.setLostReason(randomLostReason());
+            }
+
             opportunities.add(opportunity);
         }
 
@@ -58,7 +70,7 @@ public class OpportunitySeeder {
 
     private Integer randomProbability(OpportunityStatus opportunityStatus){
         return switch (opportunityStatus){
-            case OPEN -> 80;
+            case OPEN -> random.nextInt(61) + 20;
             case WON -> 100;
             case LOST -> 0;
         };
@@ -71,5 +83,17 @@ public class OpportunitySeeder {
             case LOST -> OpportunityStatus.LOST;
             default -> null;
         };
+    }
+
+    private String randomLostReason(){
+        String[] reasons = {
+                "Price too high",
+                "Lost to competitor",
+                "No budget",
+                "No response",
+                "Project cancelled"
+        };
+
+        return reasons[random.nextInt(reasons.length)];
     }
 }
