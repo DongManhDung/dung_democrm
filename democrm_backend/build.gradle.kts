@@ -28,6 +28,12 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt:0.13.0")
     // Source: https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml
     implementation("org.apache.poi:poi-ooxml:5.5.1")
+    // Source: https://mvnrepository.com/artifact/org.mapstruct/mapstruct
+    implementation("org.mapstruct:mapstruct:1.6.3")
+    annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
+
+    annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
+
 	compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("org.postgresql:postgresql")

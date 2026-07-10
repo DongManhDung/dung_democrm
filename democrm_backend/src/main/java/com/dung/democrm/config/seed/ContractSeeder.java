@@ -8,6 +8,7 @@ import com.dung.democrm.repository.ContractRepository;
 import com.dung.democrm.repository.OpportunityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ public class ContractSeeder {
 
     private final OpportunityRepository opportunityRepository;
 
+    @Transactional
     public void seed(){
         if(contractRepository.count() > 0) return;
 
@@ -30,8 +32,6 @@ public class ContractSeeder {
 
         for(Opportunity opportunity : opportunities){
             if(opportunity.getStatus() != OpportunityStatus.WON) continue;
-
-            opportunity.getLead().setLeadStatus(LeadStatus.WON);
 
             Contract contract = new Contract();
             contract.setOpportunity(opportunity);
