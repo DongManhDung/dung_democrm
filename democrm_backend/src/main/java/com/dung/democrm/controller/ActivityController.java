@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
@@ -74,13 +75,13 @@ public class ActivityController {
 
     @GetMapping("/timeline/lead/{leadId}")
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','SALES')")
-    public Page<ActivityTimelineResponse> getLeadTimeline(@PathVariable("leadId") Long leadId, Pageable pageable){
+    public Page<ActivityTimelineResponse> getLeadTimeline(@PathVariable("leadId") Long leadId, Pageable pageable) throws AccessDeniedException {
         return activityService.getLeadTimeline(leadId, pageable);
     }
 
     @GetMapping("/timeline/customer/{customerId}")
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','SALES')")
-    public Page<ActivityTimelineResponse> getCustomerTimeline(@PathVariable("customerId") Long customerId, Pageable pageable){
+    public Page<ActivityTimelineResponse> getCustomerTimeline(@PathVariable("customerId") Long customerId, Pageable pageable) throws AccessDeniedException {
         return activityService.getCustomerTimeline(customerId, pageable);
     }
 

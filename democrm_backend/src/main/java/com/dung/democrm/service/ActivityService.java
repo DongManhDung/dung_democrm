@@ -8,6 +8,8 @@ import com.dung.democrm.dto.response.ActivityTimelineResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.nio.file.AccessDeniedException;
+
 
 public interface ActivityService {
     Page<ActivityResponse> getAllActivities(Pageable pageable);
@@ -19,7 +21,7 @@ public interface ActivityService {
     ActivityDetailResponse getActivityDetail(Long id);
 
     // Timeline
-    Page<ActivityTimelineResponse> getLeadTimeline(Long leadId, Pageable pageable);
-    Page<ActivityTimelineResponse> getCustomerTimeline(Long customerId, Pageable pageable);
+    Page<ActivityTimelineResponse> getLeadTimeline(Long leadId, Pageable pageable) throws AccessDeniedException;
+    Page<ActivityTimelineResponse> getCustomerTimeline(Long customerId, Pageable pageable) throws AccessDeniedException;
     Page<ActivityTimelineResponse> getSalesTimeline(Long salesId, Pageable pageable);
 }

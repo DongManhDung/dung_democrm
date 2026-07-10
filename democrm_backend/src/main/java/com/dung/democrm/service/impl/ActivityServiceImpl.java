@@ -1,5 +1,6 @@
 package com.dung.democrm.service.impl;
 
+import com.dung.democrm.common.enums.Role;
 import com.dung.democrm.common.exception.ForbiddenException;
 import com.dung.democrm.common.exception.ResourceNotFoundException;
 import com.dung.democrm.dto.request.ActivityRequest;
@@ -23,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 
 @Service
@@ -111,22 +113,24 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
-    public Page<ActivityTimelineResponse> getLeadTimeline(Long leadId, Pageable pageable) {
+    public Page<ActivityTimelineResponse> getLeadTimeline(Long leadId, Pageable pageable) throws AccessDeniedException {
         getValidLead(leadId);
+        getAccessibleLeadForRead(leadId);
         return activityRepository.findAll(ActivitySpecification.timelineByLead(leadId, getCurrentUser()), pageable)
                 .map(activityMapper::toTimelineResponse);
     }
 
     @Override
-    public Page<ActivityTimelineResponse> getCustomerTimeline(Long customerId, Pageable pageable) {
+    public Page<ActivityTimelineResponse> getCustomerTimeline(Long customerId, Pageable pageable) throws AccessDeniedException {
         getValidCustomer(customerId);
+        getAccessibleLeadForRead(customerId);
         return activityRepository.findAll(ActivitySpecification.timeLineByCustomer(customerId, getCurrentUser()), pageable)
                 .map(activityMapper::toTimelineResponse);
     }
 
     @Override
     public Page<ActivityTimelineResponse> getSalesTimeline(Long salesId, Pageable pageable) {
-        getValidUser(salesId);
+        validateCanViewSalesTimeline(salesId);
         return activityRepository.findAll(ActivitySpecification.timeLineBySales(salesId, getCurrentUser()), pageable)
                 .map(activityMapper::toTimelineResponse);
     }
@@ -170,8 +174,54 @@ public class ActivityServiceImpl implements ActivityService {
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found."));
     }
 
-    private void getValidUser(Long id){
-        userRepository.findByIdAndActiveTrue(id)
+    private User getValidUser(Long id){
+        return userRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+    }
+
+    private void getAccessibleLeadForRead(Long id) throws AccessDeniedException {
+        Lead lead = getValidLead(id);
+
+        User currentUser = getCurrentUser();
+
+        if(currentUser.getRole() == Role.ADMIN){
+            return;
+        }
+
+        if(currentUser.getRole() == Role.MANAGER && lead.getTeamOwner().getId().equals(currentUser.getId())){
+            return;
+        }
+
+        if (currentUser.getRole() == Role.SALES && lead.getOwner().getId().equals(currentUser.getId())){
+            return;
+        }
+
+        throw new AccessDeniedException("You do not have permission.");
+    }
+
+    private void validateCanViewSalesTimeline(Long salesId){
+        User currentUser = getCurrentUser();
+        User sales = getValidUser(salesId);
+
+        switch (currentUser.getRole()){
+            case ADMIN: return;
+
+            case MANAGER:
+                if (sales.getManager() == null
+                        || !sales.getManager().getId().equals(currentUser.getId())){
+                    throw new ForbiddenException("You do not have permission.");
+                }
+                return;
+
+            case SALES:
+                if (!sales.getId().equals(currentUser.getId())){
+                    throw new ForbiddenException("You do not have permission.");
+                }
+                return;
+
+            default:
+                throw new ForbiddenException("You do not have permission.");
+        }
+
     }
 }
